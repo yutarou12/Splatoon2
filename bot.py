@@ -27,8 +27,7 @@ class MyBot(commands.Bot, ABC):
 intents = discord.Intents.all()
 bot = MyBot(
     command_prefix=config['prefix'],
-    intents=intents,
-    help_command=None
+    intents=intents
 )
 
 bot.db = Database.Database()
