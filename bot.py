@@ -5,12 +5,15 @@ import discord
 from discord.ext import commands, tasks
 from dotenv import load_dotenv
 from libs import Database
+from libs import Convert
 load_dotenv()
 
 config = {
     'prefix': os.getenv('PREFIX'),
     'token': os.getenv('DISCORD_BOT_TOKEN'),
-    'oauth_url': discord.utils.oauth_url(os.getenv('BOT_ID'), permissions=discord.Permissions(1342565620))
+    'oauth_url': discord.utils.oauth_url(os.getenv('BOT_ID'),
+                                         permissions=discord.Permissions(277025778752),
+                                         scopes=['bot', 'applications.commands'])
 }
 
 extensions_list = [f[:-3] for f in os.listdir("./cogs") if f.endswith(".py")]
@@ -30,8 +33,6 @@ bot = MyBot(
     intents=intents
 )
 
-bot.db = Database.Database()
-
 
 @tasks.loop(minutes=10)
 async def pre_loop():
@@ -50,7 +51,10 @@ async def on_ready():
 
 
 if __name__ == '__main__':
+    bot.db = Database.Database()
+    bot.convert = Convert.Convert()
     bot.config = config
+
     other_extension = ['jishaku']
     for o_extension in other_extension:
         try:
