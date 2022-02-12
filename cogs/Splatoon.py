@@ -8,36 +8,7 @@ from discord.commands import slash_command, Option
 from discord.ext import commands
 from discord import Embed, AllowedMentions
 
-
-def get_stage(game, time_next: bool):
-    if game == 'regular':
-        if time_next:
-            res = requests.get('https://spla2.yuu26.com/regular/next')
-            return res.json()['result'][0]
-        else:
-            res = requests.get('https://spla2.yuu26.com/regular/now')
-            return res.json()['result'][0]
-    elif game == 'gachi':
-        if time_next:
-            res = requests.get('https://spla2.yuu26.com/gachi/next')
-            return res.json()['result'][0]
-        else:
-            res = requests.get('https://spla2.yuu26.com/gachi/now')
-            return res.json()['result'][0]
-    elif game == 'league':
-        if time_next:
-            res = requests.get('https://spla2.yuu26.com/league/next')
-            return res.json()['result'][0]
-        else:
-            res = requests.get('https://spla2.yuu26.com/league/now')
-            return res.json()['result'][0]
-    elif game == 'coop':
-        if time_next:
-            res = requests.get('https://spla2.yuu26.com/coop/schedule')
-            return res.json()['result'][1]
-        else:
-            res = requests.get('https://spla2.yuu26.com/coop/schedule')
-            return res.json()['result'][0]
+from libs import Convert
 
 
 def create_text(info, rule):
@@ -69,10 +40,11 @@ class Splatoon(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.s_endpoint = 'https://stat.ink/api/v2'
-        self.spla_api_key = os.getenv('SPLATOON2_KEY')
+        self.convert = bot.convert
 
     @slash_command(name='stage')
-    async def slash_stage(self, ctx, s_type: Option(str, "ステージ情報を選択してください", name='ルール', choices=["レギュラー", "ガチ", "リーグ", "サーモンラン"]),
+    async def slash_stage(self, ctx,
+                          s_type: Option(str, "ステージ情報を選択してください", name='ルール', choices=["レギュラー", "ガチ", "リーグ", "サーモンラン"]),
                           s_next_text: Option(str, "時間帯", name='時間帯', choices=["今", "次"], default='今')):
         """スプラトゥーンステージ情報を表示するコマンド"""
         stage_dict = {'レギュラー': 'regular', 'ガチ': 'gachi', 'リーグ': 'league', 'サーモンラン': 'coop'}
@@ -81,7 +53,7 @@ class Splatoon(commands.Cog):
         stage_time_dict = {'今': False, '次': True}
         stage_time = stage_time_dict[s_next_text]
 
-        stage_info = get_stage(stage_type, stage_time)
+        stage_info = self.convert.get_stage(stage_type, stage_time)
         if stage_type == 'coop':
             image_url = stage_info['stage']['image']
         else:
@@ -109,7 +81,7 @@ class Splatoon(commands.Cog):
             await ctx.reply(embed=no_type_msg, allowed_mentions=AllowedMentions.none())
 
         elif s_type == 'r':
-            stage_info = get_stage('regular', s_next)
+            stage_info = self.convert.get_stage('regular', s_next)
             image_url = random.choice([stage_info['maps_ex'][0]['image'], stage_info['maps_ex'][1]['image']])
 
             embed = Embed(title='Splatoon2 ステージ情報 | レギュラーマッチ',
@@ -119,7 +91,7 @@ class Splatoon(commands.Cog):
             await ctx.reply(embed=embed, allowed_mentions=AllowedMentions.none())
 
         elif s_type == 'g':
-            stage_info = get_stage('gachi', s_next)
+            stage_info = self.convert.get_stage('gachi', s_next)
 
             image_url = random.choice([stage_info['maps_ex'][0]['image'], stage_info['maps_ex'][1]['image']])
 
@@ -130,7 +102,7 @@ class Splatoon(commands.Cog):
             await ctx.reply(embed=embed, allowed_mentions=AllowedMentions.none())
 
         elif s_type == 'l':
-            stage_info = get_stage('league', s_next)
+            stage_info = self.convert.get_stage('league', s_next)
 
             image_url = random.choice([stage_info['maps_ex'][0]['image'], stage_info['maps_ex'][1]['image']])
 
@@ -141,7 +113,7 @@ class Splatoon(commands.Cog):
             await ctx.reply(embed=embed, allowed_mentions=AllowedMentions.none())
 
         elif s_type == 's':
-            stage_info = get_stage('coop', s_next)
+            stage_info = self.convert.get_stage('coop', s_next)
 
             image_url = stage_info['stage']['image']
             embed = Embed(title='Splatoon2 ステージ情報 | サーモンラン',
