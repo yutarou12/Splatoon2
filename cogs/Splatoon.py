@@ -66,62 +66,6 @@ class Splatoon(commands.Cog):
 
         await ctx.respond(embed=embed)
 
-    @commands.command(description='Splatoon2のステージ情報を取得します',
-                      usage='[対戦ルールタイプ] <n(次の時間帯)>')
-    async def stage(self, ctx, s_type=None, s_next_text=None):
-
-        if s_next_text == 'n':
-            s_next = True
-        else:
-            s_next = False
-
-        if s_type is None:
-            no_type_msg = Embed(description='ステージ情報のタイプ(r, g, l, s)を指定してください\n'
-                                            '```r: レギュラーマッチ\ng: ガチマッチ\nl: リーグマッチ\ns: サーモンラン```')
-            await ctx.reply(embed=no_type_msg, allowed_mentions=AllowedMentions.none())
-
-        elif s_type == 'r':
-            stage_info = self.convert.get_stage('regular', s_next)
-            image_url = random.choice([stage_info['maps_ex'][0]['image'], stage_info['maps_ex'][1]['image']])
-
-            embed = Embed(title='Splatoon2 ステージ情報 | レギュラーマッチ',
-                          description=create_text(stage_info, 'regular'),
-                          color=261888)  # カラー:ライトグリーン
-            embed.set_image(url=image_url)
-            await ctx.reply(embed=embed, allowed_mentions=AllowedMentions.none())
-
-        elif s_type == 'g':
-            stage_info = self.convert.get_stage('gachi', s_next)
-
-            image_url = random.choice([stage_info['maps_ex'][0]['image'], stage_info['maps_ex'][1]['image']])
-
-            embed = Embed(title='Splatoon2 ステージ情報 | ガチマッチ',
-                          description=create_text(stage_info, 'gachi'),
-                          color=14840346)  # カラー:オレンジ
-            embed.set_image(url=image_url)
-            await ctx.reply(embed=embed, allowed_mentions=AllowedMentions.none())
-
-        elif s_type == 'l':
-            stage_info = self.convert.get_stage('league', s_next)
-
-            image_url = random.choice([stage_info['maps_ex'][0]['image'], stage_info['maps_ex'][1]['image']])
-
-            embed = Embed(title='Splatoon2 ステージ情報 | リーグマッチ',
-                          description=create_text(stage_info, 'league'),
-                          color=15409787)  # カラー:ピンク
-            embed.set_image(url=image_url)
-            await ctx.reply(embed=embed, allowed_mentions=AllowedMentions.none())
-
-        elif s_type == 's':
-            stage_info = self.convert.get_stage('coop', s_next)
-
-            image_url = stage_info['stage']['image']
-            embed = Embed(title='Splatoon2 ステージ情報 | サーモンラン',
-                          description=create_text(stage_info, 'coop'),
-                          color=15442812)  # カラー:薄橙
-            embed.set_image(url=image_url)
-            await ctx.reply(embed=embed, allowed_mentions=AllowedMentions.none())
-
 
 def setup(bot):
     bot.add_cog(Splatoon(bot))
