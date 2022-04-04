@@ -2,6 +2,7 @@ import math
 import sys
 
 import discord
+from discord.commands import slash_command
 from discord.ext import commands
 
 
@@ -10,19 +11,19 @@ class Bot(commands.Cog):
     def __init__(self, bot):
         self.bot: discord.Bot = bot
 
-    @commands.command(description='Botの応答速度を測ります')
+    @slash_command(name='ping')
     async def ping(self, ctx):
-        await ctx.reply(f'🏓 Pong! - {math.floor(self.bot.latency * 1000)} ms',
-                        allowed_mentions=discord.AllowedMentions.none())
+        """Botの応答速度を測ります。"""
+        return await ctx.respond(f'🏓 Pong! - {math.floor(self.bot.latency * 1000)} ms')
 
-    @commands.command(description='BOTの招待リンクを出します')
+    @slash_command(name='invite')
     async def invite(self, ctx):
-        return await ctx.reply(f'招待リンクです\n{self.bot.config["oauth_url"]}',
-                               allowed_mentions=discord.AllowedMentions.none())
+        """BOTの招待リンクを出します。"""
+        return await ctx.respond(f'招待リンクです\n{self.bot.config["oauth_url"]}')
 
-    @commands.command(description='BOTの情報を表示します')
+    @slash_command(name='about')
     async def about(self, ctx):
-
+        """BOTの情報を表示します。"""
         owner = await self.bot.fetch_user((await self.bot.application_info()).owner.id)
         info_guilds = len(self.bot.guilds)
         info_user = len(self.bot.users)
@@ -38,18 +39,18 @@ class Bot(commands.Cog):
                         value=f'```yml\nPython:\n{sys.version}\nPycord: {discord.__version__}\n```',
                         inline=False)
         embed.add_field(name='Prefix',
-                        value=f'```yml\n{self.bot.config["prefix"]}\n'
-                              f'{self.bot.config["prefix"]}help でコマンドの説明を見ることが出来ます```',
+                        value=f'```yml\n/ (スラッシュコマンド)\n'
+                              f'/help でコマンドの説明を見ることが出来ます```',
                         inline=False)
         embed.add_field(name='詳細',
                         value=f'```yml\n[導入サーバー数] {info_guilds}\n[ユーザー数] {info_user}\n[チャンネル数] {info_ch}\n```',
                         inline=False)
         embed.add_field(name='各種リンク',
                         value=f'[BOTの招待リンク]({self.bot.config["oauth_url"]}) | '
-                              '[公式サーバー](https://discord.gg/k5Feum44gE) | '
+                              '[サポートサーバー](https://discord.gg/k5Feum44gE) | '
                               '[開発者のサイト](https://syutarou.xyz)',
                         inline=False)
-        await ctx.reply(embed=embed, allowed_mentions=discord.AllowedMentions.none())
+        return await ctx.respond(embed=embed)
 
 
 def setup(bot):
