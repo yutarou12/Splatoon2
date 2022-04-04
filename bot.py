@@ -30,24 +30,18 @@ class MyBot(commands.Bot, ABC):
 intents = discord.Intents.all()
 bot = MyBot(
     command_prefix=config['prefix'],
-    intents=intents
+    intents=intents,
+    allowed_mentions=discord.AllowedMentions(replied_user=False, everyone=False)
 )
-
-
-@tasks.loop(minutes=10)
-async def pre_loop():
-    await bot.wait_until_ready()
-    await bot.change_presence(
-        activity=discord.Game(name=f'{config["prefix"]}help | ステージ情報配信中')
-    )
 
 
 @bot.event
 async def on_ready():
     print(f'{bot.user.name} でログインしました')
     print(f'サーバー数: {len(bot.guilds)}')
-    if not pre_loop.is_running():
-        pre_loop.start()
+    await bot.change_presence(
+        activity=discord.Game(name=f'{config["prefix"]}help | ステージ情報配信中')
+    )
 
 
 if __name__ == '__main__':
