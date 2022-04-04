@@ -27,7 +27,9 @@ class MyBot(commands.Bot, ABC):
         return await super().get_context(message, *args, **kwargs)
 
 
-intents = discord.Intents.all()
+intents = discord.Intents.default()
+intents.guilds = True
+
 bot = MyBot(
     command_prefix=config['prefix'],
     intents=intents,
