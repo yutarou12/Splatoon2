@@ -33,7 +33,8 @@ intents.guilds = True
 bot = MyBot(
     command_prefix=config['prefix'],
     intents=intents,
-    allowed_mentions=discord.AllowedMentions(replied_user=False, everyone=False)
+    allowed_mentions=discord.AllowedMentions(replied_user=False, everyone=False),
+    help_command=None
 )
 
 
@@ -42,7 +43,7 @@ async def on_ready():
     print(f'{bot.user.name} でログインしました')
     print(f'サーバー数: {len(bot.guilds)}')
     await bot.change_presence(
-        activity=discord.Game(name=f'{config["prefix"]}help | ステージ情報配信中')
+        activity=discord.Game(name=f'/stage | ステージ情報配信中')
     )
 
 
