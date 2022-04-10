@@ -70,9 +70,9 @@ class Splatoon(commands.Cog):
         return await ctx.respond(embed=embed)
 
     @slash_command(name='list', guild_ids=[881390536504799234])
-    async def stage_list(self, ctx):
+    async def stage_list(self, ctx: commands.Context):
         """スプラトゥーンステージ情報の一覧を表示するコマンド"""
-        await ctx.defer()
+        await ctx.defer(ephemeral=True)
         stage_color = {'レギュラー': 261888, 'ガチ': 14840346, 'リーグ': 15409787, 'サーモンラン': 15442812}
         r_stage_info = self.convert.get_stage('regular', stage_all=True)
         g_stage_info = self.convert.get_stage('gachi', stage_all=True)
