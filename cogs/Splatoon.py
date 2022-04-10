@@ -69,7 +69,7 @@ class Splatoon(commands.Cog):
 
         await ctx.respond(embed=embed)
 
-    @slash_command(name='list')
+    @slash_command(name='list', guild_ids=[881390536504799234])
     async def stage_list(self, ctx):
         """スプラトゥーンステージ情報の一覧を表示するコマンド"""
         stage_color = {'レギュラー': 261888, 'ガチ': 14840346, 'リーグ': 15409787, 'サーモンラン': 15442812}
@@ -136,7 +136,7 @@ class Splatoon(commands.Cog):
         ]
         pages.PaginatorMenu(page_groups=page_groups, placeholder='モードを選択できます。')
 
-        paginator = pages.Paginator(pages=page_groups, show_menu=True, timeout=1)
+        paginator = pages.Paginator(pages=page_groups, show_menu=True)
         await paginator.respond(ctx.interaction, ephemeral=True)
 
 
