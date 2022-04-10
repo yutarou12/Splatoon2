@@ -67,7 +67,7 @@ class Splatoon(commands.Cog):
                               color=stage_color[s_type])
         embed.set_image(url=image_url)
 
-        await ctx.respond(embed=embed)
+        return await ctx.respond(embed=embed)
 
     @slash_command(name='list', guild_ids=[881390536504799234])
     async def stage_list(self, ctx):
@@ -115,23 +115,22 @@ class Splatoon(commands.Cog):
             pages.PageGroup(
                 pages=regular_page,
                 label="レギュラーマッチ",
-                description="レギュラーマッチのステージ情報一覧",
+                description="レギュラーマッチのステージ情報一覧"
             ),
             pages.PageGroup(
                 pages=gachi_page,
                 label="ガチマッチ",
-                description="ガチマッチのステージ一覧",
-                use_default_buttons=False
+                description="ガチマッチのステージ一覧"
             ),
             pages.PageGroup(
                 pages=league_page,
                 label="リーグマッチ",
-                description="リーグマッチのステージ一覧",
+                description="リーグマッチのステージ一覧"
             ),
             pages.PageGroup(
                 pages=coop_page,
                 label="サーモンラン",
-                description="サーモンランのステージ一覧",
+                description="サーモンランのステージ一覧"
             ),
         ]
 
