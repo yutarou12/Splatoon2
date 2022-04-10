@@ -14,12 +14,12 @@ class Bot(commands.Cog):
     @slash_command(name='ping')
     async def ping(self, ctx):
         """Botの応答速度を測ります。"""
-        return await ctx.respond(f'🏓 Pong! - {math.floor(self.bot.latency * 1000)} ms')
+        return await ctx.respond(f'🏓 Pong! - {math.floor(self.bot.latency * 1000)} ms', ephemeral=True)
 
     @slash_command(name='invite')
     async def invite(self, ctx):
         """BOTの招待リンクを出します。"""
-        return await ctx.respond(f'招待リンクです\n{self.bot.config["oauth_url"]}')
+        return await ctx.respond(f'招待リンクです\n{self.bot.config["oauth_url"]}', ephemeral=True)
 
     @slash_command(name='help')
     async def _help(self, ctx):
@@ -30,7 +30,7 @@ class Bot(commands.Cog):
         embed.add_field(name='/invite', value='BOTの招待リンクを出します。', inline=False)
         embed.add_field(name='/about', value='BOTの情報を表示します。', inline=False)
         embed.add_field(name='/stage', value='ヘルプを表示します。', inline=False)
-        return await ctx.respond(embed=embed)
+        return await ctx.respond(embed=embed, ephemeral=True)
 
     @slash_command(name='about')
     async def about(self, ctx):
@@ -61,7 +61,7 @@ class Bot(commands.Cog):
                               '[サポートサーバー](https://discord.gg/k5Feum44gE) | '
                               '[開発者のサイト](https://syutarou.xyz)',
                         inline=False)
-        return await ctx.respond(embed=embed)
+        return await ctx.respond(embed=embed, ephemeral=True)
 
 
 def setup(bot):
