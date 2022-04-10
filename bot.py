@@ -29,6 +29,7 @@ class MyBot(commands.Bot, ABC):
 
 intents = discord.Intents.default()
 intents.guilds = True
+intents.message_content = True
 
 bot = MyBot(
     command_prefix=config['prefix'],
