@@ -136,7 +136,7 @@ class Splatoon(commands.Cog):
         ]
         pages.PaginatorMenu(page_groups=page_groups, placeholder='モードを選択できます。')
 
-        paginator = pages.Paginator(pages=page_groups, show_menu=True)
+        paginator = pages.Paginator(pages=page_groups, show_menu=True, timeout=1)
         await paginator.respond(ctx.interaction, ephemeral=True)
 
 
