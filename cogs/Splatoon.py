@@ -134,7 +134,6 @@ class Splatoon(commands.Cog):
                 description="サーモンランのステージ一覧",
             ),
         ]
-        pages.PaginatorMenu(page_groups=page_groups, placeholder='モードを選択できます。')
 
         paginator = pages.Paginator(pages=page_groups, show_menu=True)
         await paginator.respond(ctx.interaction, ephemeral=True)
