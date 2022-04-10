@@ -69,7 +69,7 @@ class Splatoon(commands.Cog):
 
         return await ctx.respond(embed=embed)
 
-    @slash_command(name='list', guild_ids=[881390536504799234])
+    @slash_command(name='list')
     async def stage_list(self, ctx):
         """スプラトゥーンステージ情報の一覧を表示するコマンド"""
         await ctx.defer(ephemeral=True)
