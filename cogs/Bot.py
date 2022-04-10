@@ -30,6 +30,7 @@ class Bot(commands.Cog):
         embed.add_field(name='/invite', value='BOTの招待リンクを出します。', inline=False)
         embed.add_field(name='/about', value='BOTの情報を表示します。', inline=False)
         embed.add_field(name='/stage', value='ヘルプを表示します。', inline=False)
+        embed.add_field(name='/list', value='ステージ情報の一覧を表示します。', inline=False)
         return await ctx.respond(embed=embed, ephemeral=True)
 
     @slash_command(name='about')
