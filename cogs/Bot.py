@@ -21,6 +21,17 @@ class Bot(commands.Cog):
         """BOTの招待リンクを出します。"""
         return await ctx.respond(f'招待リンクです\n{self.bot.config["oauth_url"]}')
 
+    @slash_command(name='help')
+    async def _help(self, ctx):
+        """Botのヘルプを表示します。"""
+        embed = discord.Embed(title='ヘルプ', color=0x00ff00)
+        embed.add_field(name='/help', value='ヘルプを表示します。', inline=False)
+        embed.add_field(name='/ping', value='Botの応答速度を測ります。', inline=False)
+        embed.add_field(name='/invite', value='BOTの招待リンクを出します。', inline=False)
+        embed.add_field(name='/about', value='BOTの情報を表示します。', inline=False)
+        embed.add_field(name='/stage', value='ヘルプを表示します。', inline=False)
+        return await ctx.respond(embed=embed)
+
     @slash_command(name='about')
     async def about(self, ctx):
         """BOTの情報を表示します。"""
