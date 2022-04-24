@@ -29,10 +29,10 @@ class MyBot(commands.Bot, ABC):
 
 intents = discord.Intents.default()
 intents.guilds = True
-intents.message_content = True
+intents.members = True
 
 bot = MyBot(
-    command_prefix=config['prefix'],
+    command_prefix=commands.when_mentioned_or(config['prefix']),
     intents=intents,
     allowed_mentions=discord.AllowedMentions(replied_user=False, everyone=False),
     help_command=None
