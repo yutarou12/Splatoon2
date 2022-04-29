@@ -72,7 +72,7 @@ class Splatoon(commands.Cog):
         return await ctx.respond(embed=embed)
 
     @slash_command(name='weapon')
-    @commands.cooldown(1, 60*30, commands.BucketType.user)
+    @commands.cooldown(1, 60*60*2, commands.BucketType.user)
     async def slash_weapon(self, ctx):
         """ブキガチャコマンド"""
         weapon = self.convert.get_weapon()
