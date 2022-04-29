@@ -2,6 +2,8 @@ import os
 import random
 import json
 import requests
+import math
+import asyncio
 from typing import Optional
 
 from discord.commands import slash_command, Option
@@ -68,6 +70,45 @@ class Splatoon(commands.Cog):
         embed.set_image(url=image_url)
 
         return await ctx.respond(embed=embed)
+
+    @slash_command(name='weapon')
+    @commands.cooldown(1, 60*30, commands.BucketType.user)
+    async def slash_weapon(self, ctx):
+        """ブキガチャコマンド"""
+        weapon = self.convert.get_weapon()
+        weapon_list_jp = [(i['name']['ja_JP'], i['splatnet']) for i in weapon]
+        weapons = random.sample(weapon_list_jp, 6)
+        weapon_files = [discord.File(f'./images/weapons/{f[1]}.png', filename='image.png') for f in weapons]
+
+        embed = discord.Embed(title='ブキガチャ',
+                              description='ブキチ君が迷っている...')
+        embed.set_image(url='attachment://image.png')
+
+        await ctx.respond(embed=embed, file=weapon_files[0])
+
+        await asyncio.sleep(1)
+
+        for i in range(1, len(weapon_files)):
+            await ctx.interaction.edit_original_message(embed=embed, file=weapon_files[i])
+            await asyncio.sleep(1)
+
+        ch_weapon_name, ch_weapon_id = random.choice(weapon_list_jp)
+
+        file = discord.File(f'./images/weapons/{ch_weapon_id}.png', filename='image.png')
+
+        embed = discord.Embed(title='ブキガチャ 結果',
+                              description=f'{ctx.author.mention}さんが引いたのは...\n**{ch_weapon_name}** だ！\nこの武器で対戦してみよう！')
+        embed.set_image(url='attachment://image.png')
+
+        await asyncio.sleep(1.5)
+        return await ctx.interaction.edit_original_message(file=file, embed=embed)
+
+    @slash_weapon.error
+    async def slash_weapon_error(self, ctx, error):
+        if isinstance(error, commands.CommandOnCooldown):
+            return await ctx.respond(f'{math.floor(error.retry_after / 60)} 分後に利用できます。', ephemeral=True)
+        else:
+            raise error
 
     @slash_command(name='list')
     async def stage_list(self, ctx):
