@@ -76,3 +76,13 @@ class Convert:
                     return res[0]
         else:
             return False
+
+    def get_weapon(self) -> dict:
+        """
+        Get the weapon.
+        :return: weapon
+        """
+
+        res = requests.get('https://stat.ink/api/v2/weapon')
+        if res.status_code == 200:
+            return res.json()
