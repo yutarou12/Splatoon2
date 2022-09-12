@@ -21,6 +21,68 @@ class Convert:
         else:
             return res.json()
 
+    def get_api_3(self, url: str) -> dict:
+        """
+        Get the API data.
+        :param url: API URL
+        :return: dict
+        """
+
+        headers = {'User-Agent': 'DiscordBot-Splatoon/1.0 (twitter @yutarou1241477) (Contact yutarou12@syutarou.xyz)'}
+        res = requests.get(url, headers=headers)
+        if res.status_code == 200:
+            print(res.json())
+            return res.json()['results']
+        else:
+            return res.json()
+
+    def get_stage_3(self, game, time_next: bool = False, stage_all: bool = False) -> Union[dict, bool]:
+        """
+        Get the current stage of Splatoon3.
+        :param game: ゲームタイプ
+        :param time_next: 時間帯
+        :param stage_all: 全ステージ
+        :return: Union[dict, bool]
+        """
+
+        if game == 'regular':
+            if stage_all:
+                res = self.get_api_3('https://spla3.yuu26.com/api/regular/schedule')
+                return res
+            else:
+                if time_next:
+                    res = self.get_api_3('https://spla3.yuu26.com/api/regular/next')
+                    return res[0]
+                else:
+                    res = self.get_api_3('https://spla3.yuu26.com/api/regular/now')
+                    return res[0]
+
+        elif game == 'bankara-challenge':
+            if stage_all:
+                res = self.get_api_3('https://spla3.yuu26.com/api/bankara-challenge/schedule')
+                return res
+            else:
+                if time_next:
+                    res = self.get_api_3('https://spla3.yuu26.com/api/bankara-challenge/next')
+                    return res[0]
+                else:
+                    res = self.get_api_3('https://spla3.yuu26.com/api/bankara-challenge/now')
+                    return res[0]
+
+        elif game == 'bankara-open':
+            if stage_all:
+                res = self.get_api_3('https://spla3.yuu26.com/api/bankara-open/schedule')
+                return res
+            else:
+                if time_next:
+                    res = self.get_api_3('https://spla3.yuu26.com/api/bankara-open/next')
+                    return res[0]
+                else:
+                    res = self.get_api_3('https://spla3.yuu26.com/api/bankara-open/now')
+                    return res[0]
+        else:
+            return False
+
     def get_stage(self, game, time_next: bool = False, stage_all: bool = False) -> Union[dict, bool]:
         """
         Get the current stage of Splatoon2.

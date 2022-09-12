@@ -40,6 +40,18 @@ def create_text(info, rule):
     return de_msg
 
 
+def create_text_3(info):
+    rule_name = info["rule"]['name']
+    stage = f'・{info["stages"][0]["name"]}\n・{info["stages"][1]["name"]}'
+    s_t = str(info['start_time']).replace('-', '/', 2).replace('T', ' | ')
+    e_t = str(info['end_time']).replace('-', '/', 2).replace('T', ' | ')
+
+    de_msg = f'**ルール**\n```\n{rule_name}```\n**ステージ**\n```\n{stage}\n```\n' \
+             f'**時間帯**\n```\nSTART: {s_t.split("+")[0]}\nEND: {e_t.split("+")[0]}\n```'
+
+    return de_msg
+
+
 class Splatoon(commands.Cog):
     """スプラトゥーンステージ情報のコア"""
     def __init__(self, bot):
@@ -68,6 +80,28 @@ class Splatoon(commands.Cog):
                               description=create_text(stage_info, stage_type),
                               color=stage_color[s_type])
         embed.set_image(url=image_url)
+
+        return await ctx.respond(embed=embed)
+
+    @slash_command(name='stage3')
+    async def slash_stage3(self, ctx,
+                           s_type: Option(str, "ステージ情報を選択してください", name='ルール', choices=["レギュラー", "バンカラ(チャレンジ)", "バンカラ(オープン)"]),
+                           s_next_text: Option(str, "時間帯", name='時間帯', choices=["今", "次"], default='今')
+                           ):
+        stage_dict = {'レギュラー': 'regular', 'バンカラ(チャレンジ)': 'bankara-challenge', 'バンカラ(オープン)': 'bankara-open'}
+        stage_name = {'レギュラー': 'レギュラーマッチ', 'バンカラ(チャレンジ)': 'バンカラマッチ (チャレンジ)', 'バンカラ(オープン)': 'バンカラマッチ (オープン)'}
+        stage_color = {'レギュラー': 261888, 'バンカラ(チャレンジ)': 14840346, 'バンカラ(オープン)': 15409787}
+        stage_type = stage_dict[s_type]
+        stage_time_dict = {'今': False, '次': True}
+        stage_time = stage_time_dict[s_next_text]
+
+        stage_info = self.convert.get_stage_3(stage_type, stage_time)
+        # image_url = random.choice([stage_info['maps_ex'][0]['image'], stage_info['maps_ex'][1]['image']])
+
+        embed = discord.Embed(title=f'Splatoon3 ステージ情報 | {stage_name[s_type]}',
+                              description=create_text_3(stage_info),
+                              color=stage_color[s_type])
+        # embed.set_image(url=image_url)
 
         return await ctx.respond(embed=embed)
 

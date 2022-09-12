@@ -24,12 +24,14 @@ class Bot(commands.Cog):
     @slash_command(name='help')
     async def _help(self, ctx):
         """Botのヘルプを表示します。"""
-        embed = discord.Embed(title='ヘルプ', color=0x00ff00)
+        embed = discord.Embed(title='ヘルプ', color=0x00ff00,
+                              description='```\nBeta版と書かれているものは、開発中のコマンドです。\n予期せず仕様が変わる場合がございます。ご了承ください。```\n')
         embed.add_field(name='/help', value='ヘルプを表示します。', inline=False)
         embed.add_field(name='/ping', value='Botの応答速度を測ります。', inline=False)
         embed.add_field(name='/invite', value='BOTの招待リンクを出します。', inline=False)
         embed.add_field(name='/about', value='BOTの情報を表示します。', inline=False)
-        embed.add_field(name='/stage', value='ヘルプを表示します。', inline=False)
+        embed.add_field(name='/stage', value='Splatoon2のステージを表示します。', inline=False)
+        embed.add_field(name='/stage3', value='Splatoon3のステージを表示します。(Beta版)', inline=False)
         embed.add_field(name='/list', value='ステージ情報の一覧を表示します。', inline=False)
         return await ctx.respond(embed=embed, ephemeral=True)
 
