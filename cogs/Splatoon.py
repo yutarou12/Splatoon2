@@ -63,7 +63,7 @@ class Splatoon(commands.Cog):
     async def slash_stage(self, ctx,
                           s_type: Option(str, "ステージ情報を選択してください", name='ルール', choices=["レギュラー", "ガチ", "リーグ", "サーモンラン"]),
                           s_next_text: Option(str, "時間帯", name='時間帯', choices=["今", "次"], default='今')):
-        """スプラトゥーンステージ情報を表示するコマンド"""
+        """Splatoon2のステージ情報を表示するコマンド"""
         stage_dict = {'レギュラー': 'regular', 'ガチ': 'gachi', 'リーグ': 'league', 'サーモンラン': 'coop'}
         stage_color = {'レギュラー': 261888, 'ガチ': 14840346, 'リーグ': 15409787, 'サーモンラン': 15442812}
         stage_type = stage_dict[s_type]
@@ -88,6 +88,7 @@ class Splatoon(commands.Cog):
                            s_type: Option(str, "ステージ情報を選択してください", name='ルール', choices=["レギュラー", "バンカラ(チャレンジ)", "バンカラ(オープン)"]),
                            s_next_text: Option(str, "時間帯", name='時間帯', choices=["今", "次"], default='今')
                            ):
+        """Splatoon3のステージ情報を表示するコマンド"""
         stage_dict = {'レギュラー': 'regular', 'バンカラ(チャレンジ)': 'bankara-challenge', 'バンカラ(オープン)': 'bankara-open'}
         stage_name = {'レギュラー': 'レギュラーマッチ', 'バンカラ(チャレンジ)': 'バンカラマッチ (チャレンジ)', 'バンカラ(オープン)': 'バンカラマッチ (オープン)'}
         stage_color = {'レギュラー': 261888, 'バンカラ(チャレンジ)': 14840346, 'バンカラ(オープン)': 15409787}
