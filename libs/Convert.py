@@ -31,7 +31,6 @@ class Convert:
         headers = {'User-Agent': 'DiscordBot-Splatoon/1.0 (twitter @yutarou1241477) (Contact yutarou12@syutarou.xyz)'}
         res = requests.get(url, headers=headers)
         if res.status_code == 200:
-            print(res.json())
             return res.json()['results']
         else:
             return res.json()
@@ -79,6 +78,17 @@ class Convert:
                     return res[0]
                 else:
                     res = self.get_api_3('https://spla3.yuu26.com/api/bankara-open/now')
+                    return res[0]
+        elif game == 'coop-grouping-regular':
+            if stage_all:
+                res = self.get_api_3('https://spla3.yuu26.com/api/coop-grouping-regular/schedule')
+                return res
+            else:
+                if time_next:
+                    res = self.get_api_3('https://spla3.yuu26.com/api/coop-grouping-regular/next')
+                    return res[0]
+                else:
+                    res = self.get_api_3('https://spla3.yuu26.com/api/coop-grouping-regular/now')
                     return res[0]
         else:
             return False

@@ -1,27 +1,28 @@
 import math
 import sys
+import os
 
 import discord
-from discord.commands import slash_command
+from discord import app_commands
 from discord.ext import commands
 
 
 class Bot(commands.Cog):
     """主にBOTのヘルプや概要を表示するコマンドがあるカテゴリーです"""
-    def __init__(self, bot):
-        self.bot: discord.Bot = bot
+    def __init__(self, bot: commands.Bot):
+        self.bot = bot
 
-    @slash_command(name='ping')
+    @app_commands.command(name='ping')
     async def ping(self, ctx):
         """Botの応答速度を測ります。"""
-        return await ctx.respond(f'🏓 Pong! - {math.floor(self.bot.latency * 1000)} ms', ephemeral=True)
+        return await ctx.response.send_message(f'🏓 Pong! - {math.floor(self.bot.latency * 1000)} ms', ephemeral=True)
 
-    @slash_command(name='invite')
+    @app_commands.command(name='invite')
     async def invite(self, ctx):
         """BOTの招待リンクを出します。"""
-        return await ctx.respond(f'招待リンクです\n{self.bot.config["oauth_url"]}', ephemeral=True)
+        return await ctx.response.send_message(f'招待リンクです\n{self.bot.config["oauth_url"]}', ephemeral=True)
 
-    @slash_command(name='help')
+    @app_commands.command(name='help')
     async def _help(self, ctx):
         """Botのヘルプを表示します。"""
         embed = discord.Embed(title='ヘルプ', color=0x00ff00,
@@ -33,9 +34,10 @@ class Bot(commands.Cog):
         embed.add_field(name='/stage', value='Splatoon2のステージを表示します。', inline=False)
         embed.add_field(name='/stage3', value='Splatoon3のステージを表示します。(Beta版)', inline=False)
         embed.add_field(name='/list', value='ステージ情報の一覧を表示します。', inline=False)
-        return await ctx.respond(embed=embed, ephemeral=True)
+        embed.add_field(name='weapon', value='ブキガチャをすることが出来ます。', inline=False)
+        return await ctx.response.send_message(embed=embed, ephemeral=True)
 
-    @slash_command(name='about')
+    @app_commands.command(name='about')
     async def about(self, ctx):
         """BOTの情報を表示します。"""
         owner = await self.bot.fetch_user((await self.bot.application_info()).owner.id)
@@ -50,7 +52,7 @@ class Bot(commands.Cog):
                         value=f'```c\n# discord: {owner}\n```',
                         inline=False)
         embed.add_field(name='開発言語',
-                        value=f'```yml\nPython:\n{sys.version}\nPycord: {discord.__version__}\n```',
+                        value=f'```yml\nPython:\n{sys.version}\ndiscord.py: {discord.__version__}\n```',
                         inline=False)
         embed.add_field(name='Prefix',
                         value=f'```yml\n/ (スラッシュコマンド)\n'
@@ -64,8 +66,8 @@ class Bot(commands.Cog):
                               '[サポートサーバー](https://discord.gg/k5Feum44gE) | '
                               '[開発者のサイト](https://syutarou.xyz)',
                         inline=False)
-        return await ctx.respond(embed=embed, ephemeral=True)
+        return await ctx.response.send_message(embed=embed, ephemeral=True)
 
 
-def setup(bot):
-    bot.add_cog(Bot(bot))
+async def setup(bot: commands.Bot):
+    await bot.add_cog(Bot(bot))

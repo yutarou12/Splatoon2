@@ -6,10 +6,12 @@ import math
 import asyncio
 from typing import Optional
 
-from discord.commands import slash_command, Option
-from discord.ext import commands, pages
+from discord import app_commands, ui
+from discord.app_commands import Choice
+from discord.ext import commands
 import discord
 
+from libs import Page
 from libs import Convert
 
 
@@ -40,15 +42,29 @@ def create_text(info, rule):
     return de_msg
 
 
-def create_text_3(info):
-    rule_name = info["rule"]['name']
-    stage = f'・{info["stages"][0]["name"]}\n・{info["stages"][1]["name"]}'
-    s_t = str(info['start_time']).replace('-', '/', 2).replace('T', ' | ')
-    e_t = str(info['end_time']).replace('-', '/', 2).replace('T', ' | ')
+def create_text_3(info, rule):
+    if rule == 'coop-grouping-regular':
+        stage = info["stage"]["name"] if info["stage"] else "未発表"
 
-    de_msg = f'**ルール**\n```\n{rule_name}```\n**ステージ**\n```\n{stage}\n```\n' \
-             f'**時間帯**\n```\nSTART: {s_t.split("+")[0]}\nEND: {e_t.split("+")[0]}\n```'
+        s_t = str(info['start_time']).replace('-', '/', 2).replace('T', ' | ')
+        e_t = str(info['end_time']).replace('-', '/', 2).replace('T', ' | ')
+        weapons = ''
+        if info['weapons']:
+            for we in info['weapons']:
+                weapons += f'・{we["name"]}\n'
+        else:
+            weapons = '未発表'
 
+        de_msg = f'**ステージ**\n```\n{stage}\n```\n**支給ブキ**\n```\n{weapons}```\n' \
+                 f'**時間帯**\n```\nSTART: {s_t}\nEND: {e_t}\n```'
+    else:
+        rule_name = info["rule"]['name']
+        stage = f'・{info["stages"][0]["name"]}\n・{info["stages"][1]["name"]}'
+        s_t = str(info['start_time']).replace('-', '/', 2).replace('T', ' | ')
+        e_t = str(info['end_time']).replace('-', '/', 2).replace('T', ' | ')
+
+        de_msg = f'**ルール**\n```\n{rule_name}```\n**ステージ**\n```\n{stage}\n```\n' \
+                 f'**時間帯**\n```\nSTART: {s_t.split("+")[0]}\nEND: {e_t.split("+")[0]}\n```'
     return de_msg
 
 
@@ -59,56 +75,79 @@ class Splatoon(commands.Cog):
         self.s_endpoint = 'https://stat.ink/api/v2'
         self.convert: Convert = bot.convert
 
-    @slash_command(name='stage')
-    async def slash_stage(self, ctx,
-                          s_type: Option(str, "ステージ情報を選択してください", name='ルール', choices=["レギュラー", "ガチ", "リーグ", "サーモンラン"]),
-                          s_next_text: Option(str, "時間帯", name='時間帯', choices=["今", "次"], default='今')):
-        """Splatoon2のステージ情報を表示するコマンド"""
-        stage_dict = {'レギュラー': 'regular', 'ガチ': 'gachi', 'リーグ': 'league', 'サーモンラン': 'coop'}
-        stage_color = {'レギュラー': 261888, 'ガチ': 14840346, 'リーグ': 15409787, 'サーモンラン': 15442812}
-        stage_type = stage_dict[s_type]
-        stage_time_dict = {'今': False, '次': True}
-        stage_time = stage_time_dict[s_next_text]
+    @app_commands.command(name='sync')
+    @commands.is_owner()
+    async def slash_sync(self, interaction):
+        await self.bot.tree.sync()
+        return await interaction.response.send_message('Synced')
 
-        stage_info = self.convert.get_stage(stage_type, stage_time)
-        if stage_type == 'coop':
+    @app_commands.command(name='stage')
+    @app_commands.describe(s_type='ステージ情報を選択してください', s_next_text='時間帯')
+    @app_commands.choices(s_type=[Choice(name='レギュラー', value='regular'), Choice(name='ガチ', value='gachi'),
+                                  Choice(name='リーグ', value='league'), Choice(name='サーモンラン', value='coop')],
+                          s_next_text=[Choice(name='今', value='今'), Choice(name='次', value='次')])
+    @app_commands.rename(s_type='ルール', s_next_text='時間帯')
+    async def slash_stage(self, interaction, s_type: Choice[str], s_next_text: Choice[str] = '今'):
+        """Splatoon2のステージ情報を表示するコマンド"""
+        battle_1 = 'https://www.nintendo.co.jp/switch/aab6a/assets/images/battle-sec01_logo.png'
+        battle_2 = 'https://www.nintendo.co.jp/switch/aab6a/assets/images/battle-sec02_logo.png'
+        battle_3 = 'https://www.nintendo.co.jp/switch/aab6a/assets/images/battle-sec03_logo.png'
+        battle_4 = 'https://www.nintendo.co.jp/switch/aab6a/assets/images/salmonrun_catch_kuma.png'
+
+        stage_icon = {'regular': battle_1, 'gachi': battle_2, 'league': battle_3, 'coop': battle_4}
+        stage_color = {'regular': 261888, 'gachi': 14840346, 'league': 15409787, 'coop': 15442812}
+        stage_time_dict = {'今': False, '次': True}
+        stage_time = stage_time_dict[s_next_text if type(s_next_text) == str else s_next_text.name]
+
+        stage_info = self.convert.get_stage(s_type.value, stage_time)
+        if s_type.value == 'coop':
             image_url = stage_info['stage']['image']
         else:
             image_url = random.choice([stage_info['maps_ex'][0]['image'], stage_info['maps_ex'][1]['image']])
 
-        embed = discord.Embed(title=f'Splatoon2 ステージ情報 | {"サーモンラン "if stage_type == "coop" else s_type + "マッチ"}',
-                              description=create_text(stage_info, stage_type),
-                              color=stage_color[s_type])
+        embed = discord.Embed(description=create_text(stage_info, s_type.value),
+                              color=stage_color[s_type.value])
         embed.set_image(url=image_url)
+        embed.set_author(name=f'Splatoon2 | {"サーモンラン " if s_type.value == "coop" else s_type.name + "マッチ"}',
+                         icon_url=stage_icon[s_type.value])
 
-        return await ctx.respond(embed=embed)
+        return await interaction.response.send_message(embed=embed)
 
-    @slash_command(name='stage3')
-    async def slash_stage3(self, ctx,
-                           s_type: Option(str, "ステージ情報を選択してください", name='ルール', choices=["レギュラー", "バンカラ(チャレンジ)", "バンカラ(オープン)"]),
-                           s_next_text: Option(str, "時間帯", name='時間帯', choices=["今", "次"], default='今')
-                           ):
+    @app_commands.command(name='stage3')
+    @app_commands.describe(s_type='ステージ情報を選択してください', s_next_text='時間帯')
+    @app_commands.choices(s_type=[Choice(name='レギュラー', value='regular'), Choice(name='バンカラ(チャレンジ)', value='bankara-challenge'),
+                                  Choice(name='バンカラ(オープン)', value='bankara-open'), Choice(name='サーモンラン', value='coop-grouping-regular')],
+                          s_next_text=[Choice(name='今', value='今'), Choice(name='次', value='次')])
+    @app_commands.rename(s_type='ルール', s_next_text='時間帯')
+    async def slash_stage3(self, interaction, s_type: Choice[str], s_next_text: Choice[str] = '今'):
         """Splatoon3のステージ情報を表示するコマンド"""
-        stage_dict = {'レギュラー': 'regular', 'バンカラ(チャレンジ)': 'bankara-challenge', 'バンカラ(オープン)': 'bankara-open'}
-        stage_name = {'レギュラー': 'レギュラーマッチ', 'バンカラ(チャレンジ)': 'バンカラマッチ (チャレンジ)', 'バンカラ(オープン)': 'バンカラマッチ (オープン)'}
-        stage_color = {'レギュラー': 261888, 'バンカラ(チャレンジ)': 14840346, 'バンカラ(オープン)': 15409787}
-        stage_type = stage_dict[s_type]
-        stage_time_dict = {'今': False, '次': True}
-        stage_time = stage_time_dict[s_next_text]
+        battle_1 = 'https://www.nintendo.co.jp/switch/aab6a/assets/images/battle-sec01_logo.png'
+        battle_2 = 'https://www.nintendo.co.jp/switch/aab6a/assets/images/battle-sec02_logo.png'
+        battle_4 = 'https://www.nintendo.co.jp/switch/aab6a/assets/images/salmonrun_catch_kuma.png'
 
-        stage_info = self.convert.get_stage_3(stage_type, stage_time)
+        stage_icon = {'regular': battle_1, 'bankara-challenge': battle_2, 'bankara-open': battle_2,
+                      'coop-grouping-regular': battle_4}
+        stage_name = {'regular': 'レギュラーマッチ', 'bankara-challenge': 'バンカラマッチ (チャレンジ)', 'bankara-open': 'バンカラマッチ (オープン)',
+                      'coop-grouping-regular': 'サーモンラン'}
+        stage_color = {'regular': 261888, 'bankara-challenge': 14840346, 'bankara-open': 15409787,
+                       'coop-grouping-regular': 15442812}
+        stage_time_dict = {'今': False, '次': True}
+        stage_time = stage_time_dict[s_next_text if type(s_next_text) == str else s_next_text.name]
+
+        stage_info = self.convert.get_stage_3(s_type.value, stage_time)
         # image_url = random.choice([stage_info['maps_ex'][0]['image'], stage_info['maps_ex'][1]['image']])
 
-        embed = discord.Embed(title=f'Splatoon3 ステージ情報 | {stage_name[s_type]}',
-                              description=create_text_3(stage_info),
-                              color=stage_color[s_type])
+        embed = discord.Embed(description=create_text_3(stage_info, s_type.value),
+                              color=stage_color[s_type.value])
+        embed.set_author(name=f'Splatoon3 | {stage_name[s_type.value]}',
+                         icon_url=stage_icon[s_type.value])
         # embed.set_image(url=image_url)
 
-        return await ctx.respond(embed=embed)
+        return await interaction.response.send_message(embed=embed)
 
-    @slash_command(name='weapon')
-    @commands.cooldown(1, 60*60*2, commands.BucketType.user)
-    async def slash_weapon(self, ctx):
+    @app_commands.command(name='weapon')
+    @app_commands.checks.cooldown(1, 60*60*2)
+    async def slash_weapon(self, interaction):
         """ブキガチャコマンド"""
         weapon = self.convert.get_weapon()
         weapon_list_jp = [(i['name']['ja_JP'], i['splatnet']) for i in weapon]
@@ -119,12 +158,12 @@ class Splatoon(commands.Cog):
                               description='ブキチ君が迷っている...')
         embed.set_image(url='attachment://image.png')
 
-        await ctx.respond(embed=embed, file=weapon_files[0])
+        await interaction.response.send_message(embed=embed, files=[weapon_files[0]])
 
         await asyncio.sleep(1)
 
         for i in range(1, len(weapon_files)):
-            await ctx.interaction.edit_original_message(embed=embed, file=weapon_files[i])
+            await interaction.edit_original_response(embed=embed, attachments=[weapon_files[i]])
             await asyncio.sleep(1)
 
         ch_weapon_name, ch_weapon_id = random.choice(weapon_list_jp)
@@ -132,32 +171,44 @@ class Splatoon(commands.Cog):
         file = discord.File(f'./images/weapons/{ch_weapon_id}.png', filename='image.png')
 
         embed = discord.Embed(title='ブキガチャ 結果',
-                              description=f'{ctx.author.mention}さんが引いたのは...\n**{ch_weapon_name}** だ！\nこの武器で対戦してみよう！')
+                              description=f'{interaction.user.mention}さんが引いたのは...\n**{ch_weapon_name}** だ！\nこの武器で対戦してみよう！')
         embed.set_image(url='attachment://image.png')
 
         await asyncio.sleep(1.5)
-        return await ctx.interaction.edit_original_message(file=file, embed=embed)
+        return await interaction.edit_original_response(attachments=[file], embed=embed)
 
     @slash_weapon.error
     async def slash_weapon_error(self, ctx, error):
-        if isinstance(error, commands.CommandOnCooldown):
-            return await ctx.respond(f'{math.floor(error.retry_after / 60)} 分後に利用できます。', ephemeral=True)
+        if isinstance(error, app_commands.CommandOnCooldown):
+            return await ctx.response.send_message(f'{math.floor(error.retry_after / 60)} 分後に利用できます。', ephemeral=True)
         else:
             raise error
 
-    @slash_command(name='list')
+    # @app_commands.command(name='rect')
+    # async def slash_rect(self, ctx, participant: Option(int, "募集する人数を指定します。", name='人数'), *,
+    #                      text: Option(str, "募集の際のコメントを設定します。", name='コメント', default='')):
+    #     """スプラトゥーンのマッチ募集するコマンド"""
+    #     modal = MyModal()
+    #     await ctx.response.send_modal(modal)
+
+    @app_commands.command(name='list')
     async def stage_list(self, ctx):
         """スプラトゥーンステージ情報の一覧を表示するコマンド"""
-        await ctx.defer(ephemeral=True)
+        await ctx.response.defer(ephemeral=True)
         stage_color = {'レギュラー': 261888, 'ガチ': 14840346, 'リーグ': 15409787, 'サーモンラン': 15442812}
         r_stage_info = self.convert.get_stage('regular', stage_all=True)
         g_stage_info = self.convert.get_stage('gachi', stage_all=True)
         l_stage_info = self.convert.get_stage('league', stage_all=True)
         c_stage_info = self.convert.get_stage('coop', stage_all=True)
 
+        battle_1 = self.bot.get_emoji(1021769457221255228)
+        battle_2 = self.bot.get_emoji(1021769458987057233)
+        battle_3 = self.bot.get_emoji(1021769461335859311)
+        battle_4 = self.bot.get_emoji(1021769464221540392)
+
         regular_page = []
         for info in r_stage_info:
-            embed = discord.Embed(title=f'Splatoon2 ステージ情報 | レギュラーマッチ',
+            embed = discord.Embed(title=f'{battle_1 if battle_1 else ""}  Splatoon2 | レギュラーマッチ',
                                   description=create_text(info, 'regular'),
                                   color=stage_color['レギュラー'])
             embed.set_image(url=random.choice([info['maps_ex'][0]['image'], info['maps_ex'][1]['image']]))
@@ -165,7 +216,7 @@ class Splatoon(commands.Cog):
 
         gachi_page = []
         for info in g_stage_info:
-            embed = discord.Embed(title=f'Splatoon2 ステージ情報 | ガチマッチ',
+            embed = discord.Embed(title=f'{battle_2 if battle_2 else ""} Splatoon2 | ガチマッチ',
                                   description=create_text(info, 'gachi'),
                                   color=stage_color['ガチ'])
             embed.set_image(url=random.choice([info['maps_ex'][0]['image'], info['maps_ex'][1]['image']]))
@@ -173,7 +224,7 @@ class Splatoon(commands.Cog):
 
         league_page = []
         for info in l_stage_info:
-            embed = discord.Embed(title=f'Splatoon2 ステージ情報 | リーグマッチ',
+            embed = discord.Embed(title=f'{battle_3 if battle_3 else ""} Splatoon2 | リーグマッチ',
                                   description=create_text(info, 'league'),
                                   color=stage_color['リーグ'])
             embed.set_image(url=random.choice([info['maps_ex'][0]['image'], info['maps_ex'][1]['image']]))
@@ -181,7 +232,7 @@ class Splatoon(commands.Cog):
 
         coop_page = []
         for info in c_stage_info:
-            embed = discord.Embed(title=f'Splatoon2 ステージ情報 | サーモンラン',
+            embed = discord.Embed(title=f'{battle_4 if battle_4 else ""} Splatoon2 | サーモンラン',
                                   description=create_text(info, 'coop'),
                                   color=stage_color['サーモンラン'])
             if info['stage']:
@@ -189,31 +240,35 @@ class Splatoon(commands.Cog):
             coop_page.append(embed)
 
         page_groups = [
-            pages.PageGroup(
+            Page.PageGroup(
                 pages=regular_page,
                 label="レギュラーマッチ",
-                description="レギュラーマッチのステージ情報一覧"
+                description="レギュラーマッチのステージ一覧",
+                emoji=battle_1
             ),
-            pages.PageGroup(
+            Page.PageGroup(
                 pages=gachi_page,
                 label="ガチマッチ",
-                description="ガチマッチのステージ一覧"
+                description="ガチマッチのステージ一覧",
+                emoji=battle_2
             ),
-            pages.PageGroup(
+            Page.PageGroup(
                 pages=league_page,
                 label="リーグマッチ",
-                description="リーグマッチのステージ一覧"
+                description="リーグマッチのステージ一覧",
+                emoji=battle_3
             ),
-            pages.PageGroup(
+            Page.PageGroup(
                 pages=coop_page,
                 label="サーモンラン",
-                description="サーモンランのステージ一覧"
+                description="サーモンランのステージ一覧",
+                emoji=battle_4
             ),
         ]
 
-        paginator = pages.Paginator(pages=page_groups, show_menu=True)
-        await paginator.respond(ctx.interaction, ephemeral=True)
+        paginator = Page.Paginator(pages=page_groups, show_menu=True)
+        await paginator.respond(ctx, ephemeral=True)
 
 
-def setup(bot):
-    bot.add_cog(Splatoon(bot))
+async def setup(bot):
+    await bot.add_cog(Splatoon(bot))

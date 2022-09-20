@@ -1,4 +1,5 @@
-py-cord @ git+https://github.com/Pycord-Development/pycord.git
+discord.py
 python-dotenv
-jishaku
+jishaku==2.5.1
 requests
+schedule
