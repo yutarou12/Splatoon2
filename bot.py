@@ -86,6 +86,7 @@ class MyBot(commands.Bot):
 intents = discord.Intents.default()
 intents.guilds = True
 intents.members = True
+intents.message_content = True
 
 bot = MyBot(
     command_prefix=commands.when_mentioned_or(config['prefix']),
@@ -102,6 +103,7 @@ async def on_ready():
     await bot.change_presence(
         activity=discord.Game(name=f'/stage | ステージ情報配信中')
     )
+    await bot.tree.sync()
 
 
 if __name__ == '__main__':
