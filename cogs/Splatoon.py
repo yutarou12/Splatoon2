@@ -175,13 +175,13 @@ class Splatoon(commands.Cog):
                 print(stage_info)
                 # image_url = random.choice([stage_info['maps_ex'][0]['image'], stage_info['maps_ex'][1]['image']])
 
-        embed = discord.Embed(description=create_text_3(stage_info, s_type.value),
-                              color=stage_color[s_type.value])
-        embed.set_author(name=f'Splatoon3 | {stage_name[s_type.value]}',
-                         icon_url=stage_icon[s_type.value])
-        # embed.set_image(url=image_url)
+                embed = discord.Embed(description=create_text_3(stage_info, s_type.value),
+                                      color=stage_color[s_type.value])
+                embed.set_author(name=f'Splatoon3 | {stage_name[s_type.value]}',
+                                 icon_url=stage_icon[s_type.value])
+                # embed.set_image(url=image_url)
 
-        return await interaction.response.send_message(embed=embed)
+                return await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name='weapon')
     @app_commands.checks.cooldown(1, 60*60*2)
