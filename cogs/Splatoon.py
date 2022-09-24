@@ -104,9 +104,9 @@ def convert_time(time):
 def convert_diff_time(end_time, cmd_time: datetime):
     date_dt = datetime.datetime.strptime(end_time, '%Y-%m-%dT%H:%M:%S')
 
-    cmd_time = cmd_time.astimezone(pytz.timezone('Asia/Tokyo'))
-    date_dt = date_dt.astimezone(pytz.timezone('Asia/Tokyo'))
-    diff = (date_dt - cmd_time).seconds / 60
+    cmd_time_tokyo = cmd_time.astimezone(pytz.timezone('Asia/Tokyo'))
+    date_dt_tokyo = date_dt.astimezone(pytz.timezone('Asia/Tokyo'))
+    diff = (date_dt_tokyo - cmd_time_tokyo).seconds / 60
     return str(math.floor(diff))
 
 
