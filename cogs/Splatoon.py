@@ -135,7 +135,45 @@ class Splatoon(commands.Cog):
         stage_time = stage_time_dict[s_next_text if type(s_next_text) == str else s_next_text.name]
 
         stage_info = self.convert.get_stage_3(s_type.value, stage_time)
-        # image_url = random.choice([stage_info['maps_ex'][0]['image'], stage_info['maps_ex'][1]['image']])
+        # フェス
+        if s_type.value == 'coop-grouping-regular':
+            # image_url = random.choice([stage_info['maps_ex'][0]['image'], stage_info['maps_ex'][1]['image']])
+
+            embed = discord.Embed(description=create_text_3(stage_info, s_type.value),
+                                  color=stage_color[s_type.value])
+            embed.set_author(name=f'Splatoon3 | {stage_name[s_type.value]}',
+                             icon_url=stage_icon[s_type.value])
+            # embed.set_image(url=image_url)
+
+            return await interaction.response.send_message(embed=embed)
+        else:
+            if stage_info['is_fest']:
+                fest_info = self.convert.get_fest_3(stage_time)
+
+                stage = f'・{fest_info["stages"][0]["name"]}\n・{fest_info["stages"][1]["name"]}'
+                s_t = str(fest_info['start_time']).replace('-', '/', 2).replace('T', ' | ')
+                e_t = str(fest_info['end_time']).replace('-', '/', 2).replace('T', ' | ')
+
+                if fest_info['is_tricolor']:
+                    tricolor = fest_info['tricolor_stage']
+                    de_msg = f'**ステージ**\n```\n{stage}\n```\n' \
+                             f'**トリカラステージ**\n```\n{tricolor["name"]}\n```' \
+                             f'**時間帯**\n```\nSTART: {s_t.split("+")[0]}\nEND: {e_t.split("+")[0]}\n```'
+                    image_url = random.choice([fest_info['stages'][0]['image'], fest_info['stages'][1]['image'], tricolor['image']])
+
+                else:
+                    de_msg = f'**ステージ**\n```\n{stage}\n```\n' \
+                             f'**時間帯**\n```\nSTART: {s_t.split("+")[0]}\nEND: {e_t.split("+")[0]}\n```'
+                    image_url = random.choice(
+                        [fest_info['stages'][0]['image'], fest_info['stages'][1]['image']])
+
+                embed = discord.Embed(description=de_msg)
+                embed.set_author(name=f'Splatoon3 | フェスマッチ')
+                embed.set_image(url=image_url)
+                return await interaction.response.send_message(embed=embed)
+            else:
+                print(stage_info)
+                # image_url = random.choice([stage_info['maps_ex'][0]['image'], stage_info['maps_ex'][1]['image']])
 
         embed = discord.Embed(description=create_text_3(stage_info, s_type.value),
                               color=stage_color[s_type.value])

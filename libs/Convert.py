@@ -93,6 +93,20 @@ class Convert:
         else:
             return False
 
+    def get_fest_3(self, time_next: bool = False) -> Union[dict, bool]:
+        """
+        Get the current fest stage of Splatoon3.
+        :param time_next: 時間帯
+        :return: Union[dict, bool]
+        """
+
+        if time_next:
+            res = self.get_api_3('https://spla3.yuu26.com/api/fest/next')
+            return res[0]
+        else:
+            res = self.get_api_3('https://spla3.yuu26.com/api/fest/now')
+            return res[0]
+
     def get_stage(self, game, time_next: bool = False, stage_all: bool = False) -> Union[dict, bool]:
         """
         Get the current stage of Splatoon2.
