@@ -4,6 +4,7 @@ import json
 import requests
 import math
 import asyncio
+import datetime
 from typing import Optional
 
 from discord import app_commands, ui
@@ -16,11 +17,12 @@ from libs import Convert
 
 
 def create_text(info, rule):
+    s_t = convert_time(str(info['start']))
+    e_t = convert_time(str(info['end']))
+
     if rule == 'coop':
         stage = info["stage"]["name"] if info["stage"] else "未発表"
 
-        s_t = str(info['start']).replace('-', '/', 2).replace('T', ' | ')
-        e_t = str(info['end']).replace('-', '/', 2).replace('T', ' | ')
         weapons = ''
         if info['weapons']:
             for we in info['weapons']:
@@ -29,25 +31,25 @@ def create_text(info, rule):
             weapons = '未発表'
 
         de_msg = f'**ステージ**\n```\n{stage}\n```\n**支給ブキ**\n```\n{weapons}```\n' \
-                 f'**時間帯**\n```\nSTART: {s_t}\nEND: {e_t}\n```'
+                 f'**時間帯**\n```\n{s_t} ～ {e_t}\n```'
     else:
         rule_name = info["rule"]
         stage = f'・{info["maps"][0]}\n・{info["maps"][1]}'
-        s_t = str(info['start']).replace('-', '/', 2).replace('T', ' | ')
-        e_t = str(info['end']).replace('-', '/', 2).replace('T', ' | ')
 
         de_msg = f'**ルール**\n```\n{rule_name}```\n**ステージ**\n```\n{stage}\n```\n' \
-                 f'**時間帯**\n```\nSTART: {s_t}\nEND: {e_t}\n```'
+                 f'**時間帯**\n```\n{s_t} ～ {e_t}\n```'
 
     return de_msg
 
 
 def create_text_3(info, rule):
+
+    s_t = convert_time(str(info['start_time']).split("+")[0])
+    e_t = convert_time(str(info['end_time']).split("+")[0])
+
     if rule == 'coop-grouping-regular':
         stage = info["stage"]["name"] if info["stage"] else "未発表"
 
-        s_t = str(info['start_time']).replace('-', '/', 2).replace('T', ' | ')
-        e_t = str(info['end_time']).replace('-', '/', 2).replace('T', ' | ')
         weapons = ''
         if info['weapons']:
             for we in info['weapons']:
@@ -56,16 +58,20 @@ def create_text_3(info, rule):
             weapons = '未発表'
 
         de_msg = f'**ステージ**\n```\n{stage}\n```\n**支給ブキ**\n```\n{weapons}```\n' \
-                 f'**時間帯**\n```\nSTART: {s_t}\nEND: {e_t}\n```'
+                 f'**時間帯**\n```\n{s_t} ～ {e_t}\n```'
     else:
         rule_name = info["rule"]['name']
         stage = f'・{info["stages"][0]["name"]}\n・{info["stages"][1]["name"]}'
-        s_t = str(info['start_time']).replace('-', '/', 2).replace('T', ' | ')
-        e_t = str(info['end_time']).replace('-', '/', 2).replace('T', ' | ')
 
         de_msg = f'**ルール**\n```\n{rule_name}```\n**ステージ**\n```\n{stage}\n```\n' \
-                 f'**時間帯**\n```\nSTART: {s_t.split("+")[0]}\nEND: {e_t.split("+")[0]}\n```'
+                 f'**時間帯**\n```\n{s_t} ～ {e_t}\n```'
     return de_msg
+
+
+def convert_time(time):
+    date_dt = datetime.datetime.strptime(time, '%Y-%m-%dT%H:%M:%S')
+    new_date_dt = date_dt.strftime('%m/%d | %H時')
+    return new_date_dt
 
 
 class Splatoon(commands.Cog):
@@ -137,13 +143,13 @@ class Splatoon(commands.Cog):
         stage_info = self.convert.get_stage_3(s_type.value, stage_time)
         # フェス
         if s_type.value == 'coop-grouping-regular':
-            # image_url = random.choice([stage_info['maps_ex'][0]['image'], stage_info['maps_ex'][1]['image']])
+            image_url = stage_info['stage']['image']
 
             embed = discord.Embed(description=create_text_3(stage_info, s_type.value),
                                   color=stage_color[s_type.value])
             embed.set_author(name=f'Splatoon3 | {stage_name[s_type.value]}',
                              icon_url=stage_icon[s_type.value])
-            # embed.set_image(url=image_url)
+            embed.set_image(url=image_url)
 
             return await interaction.response.send_message(embed=embed)
         else:
@@ -151,19 +157,19 @@ class Splatoon(commands.Cog):
                 fest_info = self.convert.get_fest_3(stage_time)
 
                 stage = f'・{fest_info["stages"][0]["name"]}\n・{fest_info["stages"][1]["name"]}'
-                s_t = str(fest_info['start_time']).replace('-', '/', 2).replace('T', ' | ')
-                e_t = str(fest_info['end_time']).replace('-', '/', 2).replace('T', ' | ')
+                s_t = convert_time(str(fest_info['start_time']).split("+")[0])
+                e_t = convert_time(str(fest_info['end_time']).split("+")[0])
 
                 if fest_info['is_tricolor']:
                     tricolor = fest_info['tricolor_stage']
                     de_msg = f'**ステージ**\n```\n{stage}\n```\n' \
                              f'**トリカラステージ**\n```\n{tricolor["name"]}\n```' \
-                             f'**時間帯**\n```\nSTART: {s_t.split("+")[0]}\nEND: {e_t.split("+")[0]}\n```'
+                             f'**時間帯**\n```\n{s_t} ～ {e_t}\n```'
                     image_url = random.choice([fest_info['stages'][0]['image'], fest_info['stages'][1]['image'], tricolor['image']])
 
                 else:
                     de_msg = f'**ステージ**\n```\n{stage}\n```\n' \
-                             f'**時間帯**\n```\nSTART: {s_t.split("+")[0]}\nEND: {e_t.split("+")[0]}\n```'
+                             f'**時間帯**\n```\n{s_t} ～ {e_t}\n```'
                     image_url = random.choice(
                         [fest_info['stages'][0]['image'], fest_info['stages'][1]['image']])
 
@@ -172,14 +178,13 @@ class Splatoon(commands.Cog):
                 embed.set_image(url=image_url)
                 return await interaction.response.send_message(embed=embed)
             else:
-                print(stage_info)
-                # image_url = random.choice([stage_info['maps_ex'][0]['image'], stage_info['maps_ex'][1]['image']])
+                image_url = random.choice([stage_info['stages'][0]['image'], stage_info['stages'][1]['image']])
 
                 embed = discord.Embed(description=create_text_3(stage_info, s_type.value),
                                       color=stage_color[s_type.value])
                 embed.set_author(name=f'Splatoon3 | {stage_name[s_type.value]}',
                                  icon_url=stage_icon[s_type.value])
-                # embed.set_image(url=image_url)
+                embed.set_image(url=image_url)
 
                 return await interaction.response.send_message(embed=embed)
 
