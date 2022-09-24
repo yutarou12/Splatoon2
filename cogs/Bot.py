@@ -34,7 +34,7 @@ class Bot(commands.Cog):
         embed.add_field(name='/stage', value='Splatoon2のステージを表示します。', inline=False)
         embed.add_field(name='/stage3', value='Splatoon3のステージを表示します。(Beta版)', inline=False)
         embed.add_field(name='/list', value='ステージ情報の一覧を表示します。', inline=False)
-        embed.add_field(name='weapon', value='ブキガチャをすることが出来ます。', inline=False)
+        embed.add_field(name='/weapon', value='ブキガチャをすることが出来ます。', inline=False)
         return await ctx.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name='about')
