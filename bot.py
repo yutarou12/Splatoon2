@@ -8,13 +8,14 @@ from discord.app_commands import AppCommandError
 from dotenv import load_dotenv
 from libs import Database
 from libs import Convert
+from libs import Error
 load_dotenv()
 
 config = {
     'prefix': os.getenv('PREFIX'),
     'token': os.getenv('DISCORD_BOT_TOKEN'),
     'oauth_url': discord.utils.oauth_url(os.getenv('BOT_ID'),
-                                         permissions=discord.Permissions(0),
+                                         permissions=discord.Permissions(536870912),
                                          scopes=['bot', 'applications.commands'])
 }
 
@@ -33,10 +34,17 @@ class MyBot(commands.Bot):
         TRACEBACK_CHANNEL = await bot.fetch_channel(int(os.getenv('TRACEBACK_CHANNEL_ID')))
         OWNER = bot.application.owner
 
-        if isinstance(error, commands.CommandInvokeError):
+        if isinstance(error, app_commands.CommandInvokeError):
             error = error.original
         elif isinstance(error, app_commands.CommandOnCooldown):
             return
+        elif isinstance(error, app_commands.MissingPermissions):
+            return
+        elif isinstance(error, Error.NotOwner):
+            return
+        elif isinstance(error, discord.Forbidden):
+            return await interaction.response.send_message(
+                'Botの権限を確認してください。\n`最低限必要な権限`\n```\n・ウェブフックの管理\n```', ephemeral=True)
         elif isinstance(error, discord.errors.NotFound):
             return
 
@@ -62,7 +70,7 @@ class MyBot(commands.Bot):
         msg = 'エラーが発生しました。\n コマンドが正しく入力されているにも関わらずエラーが出る際には、公式サーバーまでお問い合わせください。\n  [公式サーバー](https://discord.gg/k5Feum44gE)\n'
         embed_error.add_field(name='メッセージ', value=msg, inline=False)
         try:
-            await interaction.edit_original_response(embed=embed_error)
+            await interaction.response.send_message(embed=embed_error, ephemeral=True)
         except discord.Forbidden:
             pass
 
@@ -101,7 +109,7 @@ async def on_ready():
     print(f'{bot.user.name} でログインしました')
     print(f'サーバー数: {len(bot.guilds)}')
     await bot.change_presence(
-        activity=discord.Game(name=f'/stage | ステージ情報配信中')
+        activity=discord.Game(name=f'/stage3 | ステージ情報配信中')
     )
     await bot.tree.sync()
 

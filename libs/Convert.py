@@ -1,6 +1,17 @@
 import requests
 from typing import Optional, Union
 
+from discord import app_commands
+from libs.Error import NotOwner
+
+
+def is_owner():
+    async def predicate(interaction) -> bool:
+        if not interaction.user.id == 534994298827964416:
+            raise NotOwner('You are not Owner')
+        return True
+    return app_commands.check(predicate)
+
 
 class Convert:
 

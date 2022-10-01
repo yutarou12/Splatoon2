@@ -1,6 +1,6 @@
 discord.py
 python-dotenv
 jishaku==2.5.1
-requests
-schedule
-pytz
+requests~=2.27.1
+pytz~=2022.2.1
+aiohttp~=3.8.1

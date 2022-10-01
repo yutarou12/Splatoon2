@@ -15,6 +15,8 @@ import discord
 
 from libs import Page
 from libs import Convert
+from libs.Convert import is_owner
+from libs.Error import NotOwner
 
 
 def create_text(info, rule, cmd_time=None):
@@ -118,10 +120,17 @@ class Splatoon(commands.Cog):
         self.convert: Convert = bot.convert
 
     @app_commands.command(name='sync')
-    @commands.is_owner()
+    @is_owner()
     async def slash_sync(self, interaction):
         await self.bot.tree.sync()
         return await interaction.response.send_message('Synced')
+
+    @slash_sync.error
+    async def slash_sync_error(self, interaction, error):
+        if isinstance(error, NotOwner):
+            return await interaction.response.send_message('You are not bot owner', ephemeral=True)
+        else:
+            raise error
 
     @app_commands.command(name='stage')
     @app_commands.describe(s_type='ステージ情報を選択してください', s_next_text='時間帯')
