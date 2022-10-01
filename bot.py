@@ -30,7 +30,6 @@ class MyBot(commands.Bot):
         self.tree.on_error = self.on_app_command_error
 
     async def on_app_command_error(self, interaction: Interaction, error: AppCommandError):
-        print('--------------------------error---------------------')
         TRACEBACK_CHANNEL = await bot.fetch_channel(int(os.getenv('TRACEBACK_CHANNEL_ID')))
         OWNER = bot.application.owner
 
