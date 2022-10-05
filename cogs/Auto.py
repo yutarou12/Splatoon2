@@ -70,6 +70,7 @@ class Auto(commands.Cog):
         s_info_1 = self.convert.get_stage_3('regular', False)
         s_info_2 = self.convert.get_stage_3('bankara-challenge', False)
         s_info_3 = self.convert.get_stage_3('bankara-open', False)
+        s_info_4 = self.convert.get_stage_3('coop-grouping-regular', False)
         s_info_5 = self.convert.get_fest_3(False)
 
         s_t = convert_time(str(s_info_1['start_time']).split('+')[0])
@@ -115,11 +116,27 @@ class Auto(commands.Cog):
             for n in [s_info_5["stages"][0]["image"], s_info_5["stages"][1]["image"]]:
                 images.append(n)
 
-            description += f'**フェスマッチ**\n```\n{stage_5}\n```\n'
-            embed.set_image(url=random.choice(images))
+            embed.add_field(name='**フェスマッチ**',
+                            value=f'```\n{stage_5}\n```',
+                            inline=False)
             if s_info_5['is_tricolor']:
                 stage_tricolor = f'・{s_info_5["tricolor_stage"]["name"]}'
-                description += f'**トリカラバトル**\n```\n{stage_tricolor}\n```\n'
+                embed.add_field(name='トリカラバトル',
+                                value=f'```\n{stage_tricolor}\n```')
+            embed.set_image(url=random.choice(images))
+
+        stage4 = f'{s_info_4["stage"]["name"]}' if s_info_4["stage"] else "未発表"
+        weapons = ''
+        if s_info_4['weapons']:
+            for we in s_info_4['weapons']:
+                weapons += f'・{we["name"]}\n'
+        else:
+            weapons = '未発表'
+
+        de_msg = f'【ステージ】 {stage4}\n【支給ブキ】\n```\n{weapons}```'
+        embed.add_field(name=f'**サーモンラン**',
+                        value=f'```\n{de_msg}\n```',
+                        inline=False)
 
         tasks = []
         for channel in self.webhook_list.keys():
