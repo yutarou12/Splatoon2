@@ -135,7 +135,7 @@ class Auto(commands.Cog):
 
         de_msg = f'【ステージ】 {stage4}\n【支給ブキ】\n```\n{weapons}```'
         embed.add_field(name=f'**サーモンラン**',
-                        value=f'```\n{de_msg}\n```',
+                        value=de_msg,
                         inline=False)
 
         tasks = []
