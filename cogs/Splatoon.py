@@ -163,7 +163,7 @@ class Splatoon(commands.Cog):
         embed.set_author(name=f'Splatoon2 | {"サーモンラン " if s_type.value == "coop" else s_type.name + "マッチ"}',
                          icon_url=stage_icon[s_type.value])
 
-        return await interaction.response.send_message(embed=embed)
+        return await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name='stage3')
     @app_commands.describe(s_type='ステージ情報を選択してください', s_next_text='時間帯')
@@ -198,7 +198,7 @@ class Splatoon(commands.Cog):
                              icon_url=stage_icon[s_type.value])
             embed.set_image(url=image_url)
 
-            return await interaction.response.send_message(embed=embed)
+            return await interaction.response.send_message(embed=embed, ephemeral=True)
         else:
             if stage_info['is_fest']:
                 fest_info = self.convert.get_fest_3(stage_time)
@@ -224,7 +224,7 @@ class Splatoon(commands.Cog):
                 embed = discord.Embed(description=de_msg)
                 embed.set_author(name=f'Splatoon3 | フェスマッチ')
                 embed.set_image(url=image_url)
-                return await interaction.response.send_message(embed=embed)
+                return await interaction.response.send_message(embed=embed, ephemeral=True)
             else:
                 image_url = random.choice([stage_info['stages'][0]['image'], stage_info['stages'][1]['image']])
 
@@ -234,7 +234,7 @@ class Splatoon(commands.Cog):
                                  icon_url=stage_icon[s_type.value])
                 embed.set_image(url=image_url)
 
-                return await interaction.response.send_message(embed=embed)
+                return await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name='weapon')
     @app_commands.checks.cooldown(1, 60*60*2)
