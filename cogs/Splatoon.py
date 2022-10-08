@@ -381,12 +381,12 @@ class ViewStage(ui.View):
     async def stage_button(self, interaction: discord.Interaction, button: ui.Button):
         image_1 = discord.File(
             f"./images/stages/{str(self.stage_info['rule']['key']).lower()}/{self.stage_info['stages'][0]['id']}.png",
-            filename='image.png', description=self.stage_info['stages'][0]['name'])
+            filename='image.png', description=f"{self.stage_info['stages'][0]['name']} - Twitter @Sunfish_Drawing")
         image_2 = discord.File(
             f"./images/stages/{str(self.stage_info['rule']['key']).lower()}/{self.stage_info['stages'][1]['id']}.png",
-            filename='image.png', description=self.stage_info['stages'][1]['name'])
+            filename='image.png', description=f"{self.stage_info['stages'][1]['name']} - Twitter @Sunfish_Drawing")
 
-        await interaction.response.send_message('ステージ図面', files=[image_1, image_2], ephemeral=True)
+        await interaction.response.send_message('ステージ図面\n図面制作者：Sunfish(まんぼう)様 @Sunfish_Drawing', files=[image_1, image_2], ephemeral=True)
 
 
 async def setup(bot):
