@@ -123,7 +123,7 @@ class Splatoon(commands.Cog):
     @is_owner()
     async def slash_sync(self, interaction):
         await self.bot.tree.sync()
-        return await interaction.response.send_message('Synced')
+        return await interaction.response.send_message('Synced', ephemeral=True)
 
     @slash_sync.error
     async def slash_sync_error(self, interaction, error):
@@ -234,7 +234,10 @@ class Splatoon(commands.Cog):
                                  icon_url=stage_icon[s_type.value])
                 embed.set_image(url=image_url)
 
-                return await interaction.response.send_message(embed=embed, ephemeral=True)
+                view = ViewStage(stage_info=stage_info)
+                view.add_item(discord.ui.Button(
+                    label='図面-説明', style=discord.ButtonStyle.url, url='https://note.com/sunfish3/n/nc029f8edb031'))
+                return await interaction.response.send_message(embed=embed, ephemeral=True, view=view)
 
     @app_commands.command(name='weapon')
     @app_commands.checks.cooldown(1, 60*60*2)
@@ -359,6 +362,31 @@ class Splatoon(commands.Cog):
 
         paginator = Page.Paginator(pages=page_groups, show_menu=True)
         await paginator.respond(ctx, ephemeral=True)
+
+
+class ViewStage(ui.View):
+    def __init__(self, stage_info):
+        super().__init__()
+        self.stage_info = stage_info
+
+    @ui.button(label='ステージ画像', style=discord.ButtonStyle.blurple)
+    async def stage_image_button(self, interaction: discord.Interaction, button: ui.Button):
+        embed_1 = discord.Embed(description=self.stage_info['stages'][0]['name'])
+        embed_1.set_image(url=self.stage_info['stages'][0]['image'])
+        embed_2 = discord.Embed(description=self.stage_info['stages'][1]['name'])
+        embed_2.set_image(url=self.stage_info['stages'][1]['image'])
+        await interaction.response.send_message('ステージ画像', embeds=[embed_1, embed_2], ephemeral=True)
+
+    @ui.button(label='ステージ図面', style=discord.ButtonStyle.green)
+    async def stage_button(self, interaction: discord.Interaction, button: ui.Button):
+        image_1 = discord.File(
+            f"./images/stages/{str(self.stage_info['rule']['key']).lower()}/{self.stage_info['stages'][0]['id']}.png",
+            filename='image.png', description=self.stage_info['stages'][0]['name'])
+        image_2 = discord.File(
+            f"./images/stages/{str(self.stage_info['rule']['key']).lower()}/{self.stage_info['stages'][1]['id']}.png",
+            filename='image.png', description=self.stage_info['stages'][1]['name'])
+
+        await interaction.response.send_message('ステージ図面', files=[image_1, image_2], ephemeral=True)
 
 
 async def setup(bot):
