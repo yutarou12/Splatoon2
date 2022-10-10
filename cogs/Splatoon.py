@@ -6,6 +6,7 @@ import math
 import asyncio
 import datetime
 import pytz
+import re
 from typing import Optional
 
 from discord import app_commands, ui
@@ -362,6 +363,89 @@ class Splatoon(commands.Cog):
 
         paginator = Page.Paginator(pages=page_groups, show_menu=True)
         await paginator.respond(ctx, ephemeral=True)
+
+    @app_commands.command(name='friend')
+    @app_commands.describe(user='ユーザーを選択してください。')
+    @app_commands.rename(user='ユーザー')
+    async def friends_slash(self, interaction: discord.Interaction, user: Optional[discord.Member]):
+        """フレンドコードを表示/検索するコマンド"""
+        if not user:
+            user_data = self.bot.db.friend_code_get(interaction.user.id)
+            if not user_data:
+                return await interaction.response.send_message(
+                    'フレンドコードが登録されていません!\n`/friend-setting set フレンドコード` で登録できます。', ephemeral=True)
+            if user_data[0][2] == 0:
+                return await interaction.response.send_message(f'{interaction.user} のフレンドコード\n> {user_data[0][1]}')
+            else:
+                return await interaction.response.send_message(
+                    f'{interaction.user} のフレンドコード\n> {user_data[0][1]}', ephemeral=True)
+
+        else:
+            user_data = self.bot.db.friend_code_get(user.id)
+            if not user_data:
+                return await interaction.response.send_message(
+                    f'{user} はフレンドコードを登録していないみたいです!', ephemeral=True)
+            if user_data[0][2] == 0:
+                return await interaction.response.send_message(
+                    f'{interaction.user} のフレンドコード\n> {user_data[0][1]}', ephemeral=True)
+            else:
+                return await interaction.response.send_message(
+                    f'{user} はフレンドコードを非公開設定にしているみたいです!', ephemeral=True)
+
+    @app_commands.command(name='friend-setting')
+    @app_commands.choices(
+        sub_command=[Choice(name='登録', value='set'), Choice(name='削除', value='del'),
+                     Choice(name='公開/非公開', value='public')])
+    @app_commands.describe(sub_command='サブコマンドを指定して下さい。', arg='引数(/friend-setting set で使用)')
+    @app_commands.rename(sub_command='サブコマンド', arg='フレンドコード')
+    async def friends_set_slash(self, interaction: discord.Interaction, sub_command: Choice[str], arg: Optional[str]):
+        """フレンドコードについての設定をするコマンド"""
+        if sub_command.value == 'set':
+            if not arg:
+                return await interaction.response.send_message('フレンドコードを入力してください!\n例: `SW-1234-5678-9012`',
+                                                               ephemeral=True)
+
+            match_arg = re.match(r'[a-zA-Z]{2}-\d{4}-\d{4}-\d{4}', arg)
+            if not match_arg:
+                return await interaction.response.send_message('フレンドコードを正しく入力してください!\n例: `SW-1234-5678-9012`',
+                                                               ephemeral=True)
+
+            user_data = self.bot.db.friend_code_get(interaction.user.id)
+            if user_data:
+                return await interaction.response.send_message('フレンドコードが既に登録されています。', ephemeral=True)
+            else:
+                self.bot.db.friend_code_set(interaction.user.id, arg, 1)
+                return await interaction.response.send_message(f'フレンドコードを `{arg}` で登録しました!', ephemeral=True)
+
+        elif sub_command.value == 'del':
+            user_data = self.bot.db.friend_code_get(interaction.user.id)
+            if not user_data:
+                return await interaction.response.send_message(
+                    'フレンドコードは登録されていません!\n`/friend-setting set フレンドコード` で登録できます。', ephemeral=True)
+
+            res = self.bot.db.friend_code_del(interaction.user.id)
+            if res:
+                return await interaction.response.send_message('フレンドコードの設定を削除しました!', ephemeral=True)
+        elif sub_command.value == 'public':
+            user_data = self.bot.db.friend_code_get(interaction.user.id)
+            if not user_data:
+                return await interaction.response.send_message(
+                    'フレンドコードは登録されていません!\n`/friend-setting set フレンドコード` で登録できます。', ephemeral=True)
+
+            if user_data[0][2] == 0:
+                res = self.bot.db.friend_code_public(interaction.user.id, 1)
+                if res:
+                    return await interaction.response.send_message(
+                        'フレンドコードを非公開設定にしました。\n他のユーザーからは検索できず、`/friend`は非表示メッセージで送信されます。',
+                        ephemeral=True)
+            elif user_data[0][2] == 1:
+                res = self.bot.db.friend_code_public(interaction.user.id, 0)
+                if res:
+                    return await interaction.response.send_message(
+                        'フレンドコードを公開設定にしました。\n他のユーザーは検索が可能になり、`/friend`は通常メッセージで送信されます。',
+                        ephemeral=True)
+            else:
+                return None
 
 
 class ViewStage(ui.View):

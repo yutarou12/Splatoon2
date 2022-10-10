@@ -37,6 +37,8 @@ class Bot(commands.Cog):
         embed.add_field(name='/weapon', value='ブキガチャをすることが出来ます。', inline=False)
         embed.add_field(name='/auto-set', value='ステージ情報を自動送信するチャンネルを設定します。(Beta版)', inline=False)
         embed.add_field(name='/auto-del', value='自動送信設定を削除します。(Beta版)', inline=False)
+        embed.add_field(name='/friend', value='フレンドコードを表示します。', inline=False)
+        embed.add_field(name='/friend-setting', value='フレンドコードの設定ができます。', inline=False)
         return await ctx.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name='about')
