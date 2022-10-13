@@ -15,6 +15,7 @@ class Database:
         self.cursor.execute('CREATE TABLE IF NOT EXISTS stage_automatic(channel_id integer primary key, webhook_url)')
         self.cursor.execute(
             'CREATE TABLE IF NOT EXISTS friend_code(user_id INTEGER PRIMARY KEY, friend_code, public_code INTEGER)')
+        self.cursor.execute('CREATE TABLE IF NOT EXISTS command_log(command_name, command_count INTEGER)')
 
     def get_auto_channel(self):
         self.setup()
@@ -69,4 +70,16 @@ class Database:
     def friend_code_public(self, user_id, public):
         self.setup()
         self.cursor.execute('UPDATE friend_code SET public_code=? WHERE user_id = ?', (public, user_id))
+        return True
+
+    def command_log_add(self, command_name):
+        self.setup()
+        res = self.cursor.execute('SELECT * FROM command_log WHERE command_name=?', (command_name,))
+        data = res.fetchall()
+        if not data:
+            self.cursor.execute('INSERT INTO command_log VALUES (?,?)', (command_name, 1))
+        else:
+            command_count = int(data[0][1])
+            self.cursor.execute('UPDATE command_log SET command_count=? WHERE command_name=?',
+                                (command_count + 1, command_name))
         return True

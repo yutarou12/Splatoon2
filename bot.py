@@ -104,6 +104,13 @@ bot = MyBot(
 
 
 @bot.event
+async def on_interaction(interaction: discord.Interaction):
+    if interaction.command:
+        cmd_name = interaction.command.name
+        bot.db.command_log_add(cmd_name)
+
+
+@bot.event
 async def on_ready():
     print(f'{bot.user.name} でログインしました')
     print(f'サーバー数: {len(bot.guilds)}')
