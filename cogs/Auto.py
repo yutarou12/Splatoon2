@@ -69,8 +69,8 @@ class Auto(commands.Cog):
 
         next_stage = self.convert.get_stage_all()
         s_info_1 = next_stage['regular']
-        s_info_2 = next_stage['bankara-challenge']
-        s_info_3 = next_stage['bankara-open']
+        s_info_2 = next_stage['bankara_challenge']
+        s_info_3 = next_stage['bankara_open']
         s_info_4 = self.convert.get_stage_3('coop-grouping-regular', True)
 
         s_info_5 = self.convert.get_fest_3(True)

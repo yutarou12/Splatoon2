@@ -32,17 +32,18 @@ class Convert:
         else:
             return res.json()
 
-    def get_api_3(self, url: str) -> dict:
+    def get_api_3(self, url: str, result_name='results') -> dict:
         """
         Get the API data.
         :param url: API URL
+        :param result_name: result name
         :return: dict
         """
 
         headers = {'User-Agent': 'DiscordBot-Splatoon/1.0 (twitter @yutarou1241477) (Contact yutarou12@syutarou.xyz)'}
         res = requests.get(url, headers=headers)
         if res.status_code == 200:
-            return res.json()['results']
+            return res.json()[result_name]
         else:
             return res.json()
 
@@ -51,10 +52,10 @@ class Convert:
         Get the current all stage of Splatoon3.
         :return: Dict
         """
-        data = self.get_api_3('https://spla3.yuu26.com/api/schedule')
+        data = self.get_api_3('https://spla3.yuu26.com/api/schedule', result_name='result')
         regular = data['regular'][1]
-        bankara_challenge = data['bankara-challenge'][1]
-        bankara_open = data['bankara-open'][1]
+        bankara_challenge = data['bankara_challenge'][1]
+        bankara_open = data['bankara_open'][1]
         result_data = {'regular': regular, 'bankara_challenge': bankara_challenge, 'bankara_open': bankara_open}
         return result_data
 
