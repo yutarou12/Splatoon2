@@ -46,6 +46,18 @@ class Convert:
         else:
             return res.json()
 
+    def get_stage_all(self):
+        """
+        Get the current all stage of Splatoon3.
+        :return: Dict
+        """
+        data = self.get_api_3('https://spla3.yuu26.com/api/schedule')
+        regular = data['regular'][1]
+        bankara_challenge = data['bankara-challenge'][1]
+        bankara_open = data['bankara-open'][1]
+        result_data = {'regular': regular, 'bankara_challenge': bankara_challenge, 'bankara_open': bankara_open}
+        return result_data
+
     def get_stage_3(self, game, time_next: bool = False, stage_all: bool = False) -> Union[dict, bool]:
         """
         Get the current stage of Splatoon3.

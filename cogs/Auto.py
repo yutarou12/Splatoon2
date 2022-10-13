@@ -67,11 +67,13 @@ class Auto(commands.Cog):
         if not self.webhook_list:
             await self.setup()
 
-        s_info_1 = self.convert.get_stage_3('regular', False)
-        s_info_2 = self.convert.get_stage_3('bankara-challenge', False)
-        s_info_3 = self.convert.get_stage_3('bankara-open', False)
-        s_info_4 = self.convert.get_stage_3('coop-grouping-regular', False)
-        s_info_5 = self.convert.get_fest_3(False)
+        next_stage = self.convert.get_stage_all()
+        s_info_1 = next_stage['regular']
+        s_info_2 = next_stage['bankara-challenge']
+        s_info_3 = next_stage['bankara-open']
+        s_info_4 = self.convert.get_stage_3('coop-grouping-regular', True)
+
+        s_info_5 = self.convert.get_fest_3(True)
 
         s_t = convert_time(str(s_info_1['start_time']).split('+')[0])
         e_t = convert_time(str(s_info_1['end_time']).split('+')[0])
