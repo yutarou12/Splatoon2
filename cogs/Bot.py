@@ -3,7 +3,7 @@ import sys
 import os
 
 import discord
-from discord import app_commands
+from discord import app_commands, ui
 from discord.ext import commands
 
 
@@ -39,7 +39,13 @@ class Bot(commands.Cog):
         embed.add_field(name='/auto-del', value='自動送信設定を削除します。(Beta版)', inline=False)
         embed.add_field(name='/friend', value='フレンドコードを表示します。', inline=False)
         embed.add_field(name='/friend-setting', value='フレンドコードの設定ができます。', inline=False)
-        return await ctx.response.send_message(embed=embed, ephemeral=True)
+
+        view = ui.View()
+        view.add_item(discord.ui.Button(
+            label='プライバシーポリシー', style=discord.ButtonStyle.url, url='https://splatoon.syutarou.xyz/privacy-policy'))
+        view.add_item(discord.ui.Button(
+            label='利用規約', style=discord.ButtonStyle.url, url='https://splatoon.syutarou.xyz/terms/'))
+        return await ctx.response.send_message(embed=embed, ephemeral=True, view=view)
 
     @app_commands.command(name='about')
     async def about(self, ctx):
@@ -70,7 +76,13 @@ class Bot(commands.Cog):
                               '[サポートサーバー](https://discord.gg/k5Feum44gE) | '
                               '[開発者のサイト](https://syutarou.xyz)',
                         inline=False)
-        return await ctx.response.send_message(embed=embed, ephemeral=True)
+
+        view = ui.View()
+        view.add_item(discord.ui.Button(
+            label='プライバシーポリシー', style=discord.ButtonStyle.url, url='https://splatoon.syutarou.xyz/privacy-policy'))
+        view.add_item(discord.ui.Button(
+            label='利用規約', style=discord.ButtonStyle.url, url='https://splatoon.syutarou.xyz/terms/'))
+        return await ctx.response.send_message(embed=embed, ephemeral=True, view=view)
 
 
 async def setup(bot: commands.Bot):
