@@ -1,6 +1,7 @@
 import asyncio
 import io
 import os
+import pytz
 
 import aiohttp
 import logging
@@ -127,10 +128,17 @@ class Auto(commands.Cog):
                                 value=f'```\n{stage_tricolor}\n```')
             embed.set_image(url=random.choice(images))
 
-        stage4 = f'{s_info_4["stage"]["name"]}' if s_info_4["stage"] else "未発表"
+        next_time = datetime.datetime.strptime(s_info_4["end_time"].split('+')[0], '%Y-%m-%dT%H:%M:%S')
+        now_time = datetime.datetime.now(pytz.timezone('Asia/Tokyo'))
+        if now_time.day == next_time.day and (now_time.hour+1) == next_time.hour:
+            coop_info_4 = self.convert.get_stage_3('coop-grouping-regular', True)
+        else:
+            coop_info_4 = s_info_4
+
+        stage4 = f'{coop_info_4["stage"]["name"]}' if coop_info_4["stage"] else "未発表"
         weapons = ''
-        if s_info_4['weapons']:
-            for we in s_info_4['weapons']:
+        if coop_info_4['weapons']:
+            for we in coop_info_4['weapons']:
                 weapons += f'・{we["name"]}\n'
         else:
             weapons = '未発表'
