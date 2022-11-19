@@ -27,24 +27,26 @@ class Bot(commands.Cog):
         """Botのヘルプを表示します。"""
         embed = discord.Embed(title='ヘルプ', color=0x00ff00,
                               description='```\nBeta版と書かれているものは、開発中のコマンドです。\n予期せず仕様が変わる場合がございます。ご了承ください。```\n')
-        embed.add_field(name='/help', value='ヘルプを表示します。', inline=False)
-        embed.add_field(name='/ping', value='Botの応答速度を測ります。', inline=False)
-        embed.add_field(name='/invite', value='BOTの招待リンクを出します。', inline=False)
-        embed.add_field(name='/about', value='BOTの情報を表示します。', inline=False)
-        embed.add_field(name='/stage', value='Splatoon2のステージを表示します。', inline=False)
-        embed.add_field(name='/stage3', value='Splatoon3のステージを表示します。(Beta版)', inline=False)
-        embed.add_field(name='/list', value='ステージ情報の一覧を表示します。', inline=False)
-        embed.add_field(name='/weapon', value='ブキガチャをすることが出来ます。', inline=False)
-        embed.add_field(name='/auto-set', value='ステージ情報を自動送信するチャンネルを設定します。(Beta版)', inline=False)
-        embed.add_field(name='/auto-del', value='自動送信設定を削除します。(Beta版)', inline=False)
-        embed.add_field(name='/friend', value='フレンドコードを表示します。', inline=False)
-        embed.add_field(name='/friend-setting', value='フレンドコードの設定ができます。', inline=False)
+        embed.add_field(name='</help:962647694613028916>', value='ヘルプを表示します。', inline=False)
+        embed.add_field(name='</ping:960404289837223986>', value='Botの応答速度を測ります。', inline=False)
+        embed.add_field(name='</invite:960404290571218984>', value='BOTの招待リンクを出します。', inline=False)
+        embed.add_field(name='</about:960404291351379978>', value='BOTの情報を表示します。', inline=False)
+        embed.add_field(name='</stage:941490889635807232>', value='Splatoon2のステージを表示します。', inline=False)
+        embed.add_field(name='</stage3:1018766711379476480>', value='Splatoon3のステージを表示します。(Beta版)', inline=False)
+        embed.add_field(name='</list:962729788626333707>', value='ステージ情報の一覧を表示します。', inline=False)
+        embed.add_field(name='</weapon:969392810799276142>', value='ブキガチャをすることが出来ます。', inline=False)
+        embed.add_field(name='</auto-set:1025669000576913440>', value='ステージ情報を自動送信するチャンネルを設定します。(Beta版)', inline=False)
+        embed.add_field(name='</auto-del:1025669000576913441>', value='自動送信設定を削除します。(Beta版)', inline=False)
+        embed.add_field(name='</friend:1028822298528059464>', value='フレンドコードを表示します。', inline=False)
+        embed.add_field(name='</friend-setting:1028822298528059465>', value='フレンドコードの設定ができます。', inline=False)
 
         view = ui.View()
         view.add_item(discord.ui.Button(
             label='プライバシーポリシー', style=discord.ButtonStyle.url, url='https://splatoon.syutarou.xyz/privacy-policy'))
         view.add_item(discord.ui.Button(
             label='利用規約', style=discord.ButtonStyle.url, url='https://splatoon.syutarou.xyz/terms/'))
+        view.add_item(discord.ui.Button(
+            label='コマンドヘルプ', style=discord.ButtonStyle.url, url='https://splatoon.syutarou.xyz/docs/prologue/commands/'))
         return await ctx.response.send_message(embed=embed, ephemeral=True, view=view)
 
     @app_commands.command(name='about')
