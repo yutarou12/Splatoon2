@@ -106,7 +106,7 @@ bot = MyBot(
 @bot.event
 async def on_interaction(interaction: discord.Interaction):
     if interaction.command:
-        cmd_name = interaction.command.name
+        cmd_name = interaction.command.qualified_name
         bot.db.command_log_add(cmd_name)
 
 
