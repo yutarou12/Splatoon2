@@ -114,6 +114,17 @@ class Convert:
                 else:
                     res = self.get_api_3('https://spla3.yuu26.com/api/coop-grouping/now')
                     return res[0]
+        elif game == 'x':
+            if stage_all:
+                res = self.get_api_3('https://spla3.yuu26.com/api/x/schedule')
+                return res
+            else:
+                if time_next:
+                    res = self.get_api_3('https://spla3.yuu26.com/api/x/next')
+                    return res[0]
+                else:
+                    res = self.get_api_3('https://spla3.yuu26.com/api/x/now')
+                    return res[0]
         else:
             return False
 
