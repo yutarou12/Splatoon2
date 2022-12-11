@@ -52,7 +52,7 @@ class Bot(commands.Cog):
     @app_commands.command(name='about')
     async def about(self, ctx):
         """BOTの情報を表示します。"""
-        owner = await self.bot.fetch_user((await self.bot.application_info()).owner.id)
+        owner = await self.bot.fetch_user((await self.bot.application_info()).team.owner_id)
         info_guilds = len(self.bot.guilds)
         info_user = len(self.bot.users)
         info_ch = 0
