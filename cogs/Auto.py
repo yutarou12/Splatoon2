@@ -72,7 +72,7 @@ class Auto(commands.Cog):
         s_info_1 = next_stage['regular']
         s_info_2 = next_stage['bankara_challenge']
         s_info_3 = next_stage['bankara_open']
-        s_info_4 = self.convert.get_stage_3('coop-grouping-regular')
+        s_info_4 = self.convert.get_stage_3('coop-grouping')
 
         s_info_5 = self.convert.get_fest_3(True)
 
@@ -131,7 +131,7 @@ class Auto(commands.Cog):
         next_time = datetime.datetime.strptime(s_info_4["end_time"].split('+')[0], '%Y-%m-%dT%H:%M:%S')
         now_time = datetime.datetime.now(pytz.timezone('Asia/Tokyo'))
         if now_time.day == next_time.day and (now_time.hour+1) == next_time.hour:
-            coop_info_4 = self.convert.get_stage_3('coop-grouping-regular', True)
+            coop_info_4 = self.convert.get_stage_3('coop-grouping', True)
         else:
             coop_info_4 = s_info_4
 

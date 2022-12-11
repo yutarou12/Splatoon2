@@ -103,16 +103,16 @@ class Convert:
                 else:
                     res = self.get_api_3('https://spla3.yuu26.com/api/bankara-open/now')
                     return res[0]
-        elif game == 'coop-grouping-regular':
+        elif game == 'coop-grouping':
             if stage_all:
-                res = self.get_api_3('https://spla3.yuu26.com/api/coop-grouping-regular/schedule')
+                res = self.get_api_3('https://spla3.yuu26.com/api/coop-grouping/schedule')
                 return res
             else:
                 if time_next:
-                    res = self.get_api_3('https://spla3.yuu26.com/api/coop-grouping-regular/next')
+                    res = self.get_api_3('https://spla3.yuu26.com/api/coop-grouping/next')
                     return res[0]
                 else:
-                    res = self.get_api_3('https://spla3.yuu26.com/api/coop-grouping-regular/now')
+                    res = self.get_api_3('https://spla3.yuu26.com/api/coop-grouping/now')
                     return res[0]
         else:
             return False

@@ -69,7 +69,7 @@ def create_text_3(info, rule, cmd_time=None):
     else:
         diff_time = None
 
-    if rule == 'coop-grouping-regular':
+    if rule == 'coop-grouping':
         stage = info["stage"]["name"] if info["stage"] else "未発表"
 
         weapons = ''
@@ -190,7 +190,7 @@ class Splatoon(commands.Cog):
 
         stage_info = self.convert.get_stage_3(s_type.value, stage_time)
         # フェス
-        if s_type.value == 'coop-grouping-regular':
+        if s_type.value == 'coop-grouping':
             image_url = stage_info['stage']['image']
 
             embed = discord.Embed(description=create_text_3(stage_info, s_type.value, cmd_time),
