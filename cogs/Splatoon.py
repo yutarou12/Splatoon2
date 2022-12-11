@@ -169,7 +169,8 @@ class Splatoon(commands.Cog):
     @app_commands.command(name='stage3')
     @app_commands.describe(s_type='ステージ情報を選択してください', s_next_text='時間帯')
     @app_commands.choices(s_type=[Choice(name='レギュラー', value='regular'), Choice(name='バンカラ(チャレンジ)', value='bankara-challenge'),
-                                  Choice(name='バンカラ(オープン)', value='bankara-open'), Choice(name='サーモンラン', value='coop-grouping-regular')],
+                                  Choice(name='バンカラ(オープン)', value='bankara-open'), Choice(name='サーモンラン', value='coop-grouping'),
+                                  Choice(name='Xマッチ', value='x')],
                           s_next_text=[Choice(name='今', value='今'), Choice(name='次', value='次')])
     @app_commands.rename(s_type='ルール', s_next_text='時間帯')
     async def slash_stage3(self, interaction, s_type: Choice[str], s_next_text: Choice[str] = '今'):
@@ -179,11 +180,11 @@ class Splatoon(commands.Cog):
         battle_4 = 'https://www.nintendo.co.jp/switch/aab6a/assets/images/salmonrun_catch_kuma.png'
 
         stage_icon = {'regular': battle_1, 'bankara-challenge': battle_2, 'bankara-open': battle_2,
-                      'coop-grouping-regular': battle_4}
+                      'coop-grouping': battle_4, 'x': battle_2}
         stage_name = {'regular': 'レギュラーマッチ', 'bankara-challenge': 'バンカラマッチ (チャレンジ)', 'bankara-open': 'バンカラマッチ (オープン)',
-                      'coop-grouping-regular': 'サーモンラン'}
+                      'coop-grouping': 'サーモンラン', 'x': 'Xマッチ'}
         stage_color = {'regular': 261888, 'bankara-challenge': 14840346, 'bankara-open': 15409787,
-                       'coop-grouping-regular': 15442812}
+                       'coop-grouping': 15442812, 'x': 53916}
         stage_time_dict = {'今': False, '次': True}
         stage_time = stage_time_dict[s_next_text if type(s_next_text) == str else s_next_text.name]
         cmd_time = interaction.created_at
@@ -195,7 +196,7 @@ class Splatoon(commands.Cog):
 
             embed = discord.Embed(description=create_text_3(stage_info, s_type.value, cmd_time),
                                   color=stage_color[s_type.value])
-            embed.set_author(name=f'Splatoon3 | {stage_name[s_type.value]}',
+            embed.set_author(name=f'Splatoon3 | {"⚠ ビックラン ⚠" if stage_info["is_big_run"] else stage_name[s_type.value]}',
                              icon_url=stage_icon[s_type.value])
             embed.set_image(url=image_url)
 

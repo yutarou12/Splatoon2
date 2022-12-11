@@ -144,7 +144,7 @@ class Auto(commands.Cog):
             weapons = '未発表'
 
         de_msg = f'【ステージ】 {stage4}\n【支給ブキ】\n```\n{weapons}```'
-        embed.add_field(name=f'**サーモンラン**',
+        embed.add_field(name=f'**{ "⚠ ビックラン ⚠" if coop_info_4["is_big_run"] else "サーモンラン"}**',
                         value=de_msg,
                         inline=False)
 
