@@ -177,10 +177,11 @@ class Splatoon(commands.Cog):
         """Splatoon3のステージ情報を表示するコマンド"""
         battle_1 = 'https://www.nintendo.co.jp/switch/aab6a/assets/images/battle-sec01_logo.png'
         battle_2 = 'https://www.nintendo.co.jp/switch/aab6a/assets/images/battle-sec02_logo.png'
+        x_match_icon = 'https://splatoon.syutarou.xyz/images/x_match.png'
         battle_4 = 'https://www.nintendo.co.jp/switch/aab6a/assets/images/salmonrun_catch_kuma.png'
 
         stage_icon = {'regular': battle_1, 'bankara-challenge': battle_2, 'bankara-open': battle_2,
-                      'coop-grouping': battle_4, 'x': battle_2}
+                      'coop-grouping': battle_4, 'x': x_match_icon}
         stage_name = {'regular': 'レギュラーマッチ', 'bankara-challenge': 'バンカラマッチ (チャレンジ)', 'bankara-open': 'バンカラマッチ (オープン)',
                       'coop-grouping': 'サーモンラン', 'x': 'Xマッチ'}
         stage_color = {'regular': 261888, 'bankara-challenge': 14840346, 'bankara-open': 15409787,
