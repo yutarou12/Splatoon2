@@ -227,7 +227,10 @@ class Auto(commands.Cog):
 
     @tasks.loop(hours=2)
     async def scheduler_loop(self):
-        await self.auto_sending()
+        with open('./db/auto_config.json') as f:
+            data = json.load(f)
+        if data['Function'] == 'True':
+            await self.auto_sending()
 
 
 async def setup(bot):
