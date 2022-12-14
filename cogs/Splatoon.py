@@ -246,10 +246,10 @@ class Splatoon(commands.Cog):
     @app_commands.checks.cooldown(1, 60*60*2)
     async def slash_weapon(self, interaction):
         """ブキガチャコマンド"""
-        weapon = self.convert.get_weapon()
+        weapon = self.convert.get_weapon('v2')
         weapon_list_jp = [(i['name']['ja_JP'], i['splatnet']) for i in weapon]
         weapons = random.sample(weapon_list_jp, 6)
-        weapon_files = [discord.File(f'./images/weapons/{f[1]}.png', filename='image.png') for f in weapons]
+        weapon_files = [discord.File(f'./images/weapons/v2/{f[1]}.png', filename='image.png') for f in weapons]
 
         embed = discord.Embed(title='ブキガチャ',
                               description='ブキチ君が迷っている...')
@@ -265,7 +265,7 @@ class Splatoon(commands.Cog):
 
         ch_weapon_name, ch_weapon_id = random.choice(weapon_list_jp)
 
-        file = discord.File(f'./images/weapons/{ch_weapon_id}.png', filename='image.png')
+        file = discord.File(f'./images/weapons/v2/{ch_weapon_id}.png', filename='image.png')
 
         embed = discord.Embed(title='ブキガチャ 結果',
                               description=f'{interaction.user.mention}さんが引いたのは...\n**{ch_weapon_name}** だ！\nこの武器で対戦してみよう！')
@@ -276,6 +276,45 @@ class Splatoon(commands.Cog):
 
     @slash_weapon.error
     async def slash_weapon_error(self, ctx, error):
+        if isinstance(error, app_commands.CommandOnCooldown):
+            return await ctx.response.send_message(f'{math.floor(error.retry_after / 60)} 分後に利用できます。', ephemeral=True)
+        else:
+            raise error
+
+    @app_commands.command(name='weapon3')
+    @app_commands.checks.cooldown(1, 60 * 60 * 2)
+    async def slash_weapon3(self, interaction):
+        """ブキガチャコマンド"""
+        weapon = self.convert.get_weapon('v3')
+        weapon_list_jp = [(i['name']['ja_JP'], i['key']) for i in weapon]
+        weapons = random.sample(weapon_list_jp, 6)
+        weapon_files = [discord.File(f'./images/weapons/v3/{f[1]}.png', filename='image.png') for f in weapons]
+
+        embed = discord.Embed(title='ブキガチャ',
+                              description='ブキチ君が迷っている...')
+        embed.set_image(url='attachment://image.png')
+
+        await interaction.response.send_message(embed=embed, files=[weapon_files[0]])
+
+        await asyncio.sleep(1)
+
+        for i in range(1, len(weapon_files)):
+            await interaction.edit_original_response(embed=embed, attachments=[weapon_files[i]])
+            await asyncio.sleep(1)
+
+        ch_weapon_name, ch_weapon_id = random.choice(weapon_list_jp)
+
+        file = discord.File(f'./images/weapons/v3/{ch_weapon_id}.png', filename='image.png')
+
+        embed = discord.Embed(title='ブキガチャ 結果',
+                              description=f'{interaction.user.mention}さんが引いたのは...\n**{ch_weapon_name}** だ！\nこの武器で対戦してみよう！')
+        embed.set_image(url='attachment://image.png')
+
+        await asyncio.sleep(1.5)
+        return await interaction.edit_original_response(attachments=[file], embed=embed)
+
+    @slash_weapon3.error
+    async def slash_weapon3_error(self, ctx, error):
         if isinstance(error, app_commands.CommandOnCooldown):
             return await ctx.response.send_message(f'{math.floor(error.retry_after / 60)} 分後に利用できます。', ephemeral=True)
         else:
