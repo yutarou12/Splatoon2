@@ -4,7 +4,6 @@ import os
 import pytz
 
 import aiohttp
-import logging
 import json
 import datetime
 import time
@@ -81,6 +80,7 @@ class Auto(commands.Cog):
 
         description = f'**{s_t} ～ {e_t}**\nㅤ'
         images = []
+        battle_rule_icon = {'ガチヤグラ': '<:battle_gachi_yagura:1054661034268430408>', 'ガチエリア': '<:battle_gachi_area:1054661035933573160>', 'ガチホコバトル': '<:battle_gachi_hoko:1054661033026932817>', 'ガチアサリ': '<:battle_gachi_asari:1054661030564876378>'}
         embed = discord.Embed(description=description, color=discord.Colour.yellow())
         embed.set_author(name='Splatoon3 ステージ情報',
                          icon_url='https://www.nintendo.co.jp/switch/av5ja/assets/images/common/menu/pc/ika.png')
@@ -90,7 +90,7 @@ class Auto(commands.Cog):
             stage = f'・{s_info_1["stages"][0]["name"]}\n・{s_info_1["stages"][1]["name"]}'
             for n in [s_info_1["stages"][0]["image"], s_info_1["stages"][1]["image"]]:
                 images.append(n)
-            embed.add_field(name=f'**レギュラーマッチ**',
+            embed.add_field(name=f'<:battle_regular:1054319052509687908> **レギュラーマッチ**',
                             value=f'```\n{stage}\n```',
                             inline=False)
             # description += f'**レギュラーマッチ**\n```\n{stage}\n```\n'
@@ -99,8 +99,9 @@ class Auto(commands.Cog):
             stage_2 = f'・{s_info_2["stages"][0]["name"]}\n・{s_info_2["stages"][1]["name"]}'
             for n in [s_info_2["stages"][0]["image"], s_info_2["stages"][1]["image"]]:
                 images.append(n)
-            embed.add_field(name=f'**バンカラマッチ (チャレンジ)**',
-                            value=f'【ルール】**{s_info_2["rule"]["name"]}**\n```\n{stage_2}\n```',
+            embed.add_field(name=f'<:battle_gachi:1054319050865512509> **バンカラマッチ (チャレンジ)**',
+                            value=f'【ルール】**{s_info_2["rule"]["name"]}** {battle_rule_icon[s_info_2["rule"]["name"]]}'
+                                  f'\n```\n{stage_2}\n```',
                             inline=False)
             # description += f'**バンカラマッチ (チャレンジ)**\n```\n{stage_2}\n```\n'
 
@@ -108,8 +109,9 @@ class Auto(commands.Cog):
             stage_3 = f'・{s_info_3["stages"][0]["name"]}\n・{s_info_3["stages"][1]["name"]}'
             for n in [s_info_3["stages"][0]["image"], s_info_3["stages"][1]["image"]]:
                 images.append(n)
-            embed.add_field(name=f'**バンカラマッチ (オープン)**',
-                            value=f'【ルール】{s_info_3["rule"]["name"]}\n```\n{stage_3}\n```',
+            embed.add_field(name=f'<:battle_gachi:1054319050865512509> **バンカラマッチ (オープン)**',
+                            value=f'【ルール】**{s_info_3["rule"]["name"]}** {battle_rule_icon[s_info_3["rule"]["name"]]}'
+                                  f'\n```\n{stage_3}\n```',
                             inline=False)
             # description += f'**バンカラマッチ (オープン)** - {s_info_3["rule"]["name"]}\n```\n{stage_3}\n```\n'
 
@@ -144,7 +146,7 @@ class Auto(commands.Cog):
             weapons = '未発表'
 
         de_msg = f'【ステージ】 {stage4}\n【支給ブキ】\n```\n{weapons}```'
-        embed.add_field(name=f'**{ "⚠ ビックラン ⚠" if coop_info_4["is_big_run"] else "サーモンラン"}**',
+        embed.add_field(name=f'<:battle_salmonrun:1054319424888381444> **{ "⚠ ビックラン ⚠" if coop_info_4["is_big_run"] else "サーモンラン "}**',
                         value=de_msg,
                         inline=False)
 
