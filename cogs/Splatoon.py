@@ -1,11 +1,8 @@
 import os
 import random
-import json
 import requests
 import math
 import asyncio
-import datetime
-import pytz
 import re
 from typing import Optional
 
@@ -15,7 +12,6 @@ from discord.ext import commands
 import discord
 
 from libs import Page
-from libs import Convert
 from libs.Convert import is_owner
 from libs.Error import NotOwner
 
@@ -311,13 +307,6 @@ class Splatoon(commands.Cog):
             return await ctx.response.send_message(f'{math.floor(error.retry_after / 60)} 分後にまた良い武器を提案するでし！', ephemeral=True)
         else:
             raise error
-
-    # @app_commands.command(name='rect')
-    # async def slash_rect(self, ctx, participant: Option(int, "募集する人数を指定します。", name='人数'), *,
-    #                      text: Option(str, "募集の際のコメントを設定します。", name='コメント', default='')):
-    #     """スプラトゥーンのマッチ募集するコマンド"""
-    #     modal = MyModal()
-    #     await ctx.response.send_modal(modal)
 
     @app_commands.command(name='list')
     async def stage_list(self, ctx):
