@@ -13,23 +13,6 @@ import discord
 from discord import app_commands, Webhook
 from discord.ext import commands, tasks
 
-from libs.Convert import is_owner
-
-
-def convert_time(time):
-    date_dt = datetime.datetime.strptime(time, '%Y-%m-%dT%H:%M:%S')
-    new_date_dt = date_dt.strftime('%m/%d | %H時')
-    return new_date_dt
-
-
-def convert_diff_time(end_time, cmd_time: datetime):
-    date_dt = datetime.datetime.strptime(end_time, '%Y-%m-%dT%H:%M:%S')
-
-    cmd_time_tokyo = cmd_time.astimezone(pytz.timezone('Asia/Tokyo')).replace(tzinfo=datetime.timezone.utc)
-    date_dt_tokyo = date_dt.replace(tzinfo=datetime.timezone.utc)
-    diff = (date_dt_tokyo - cmd_time_tokyo).seconds / 60
-    return str(math.floor(diff))
-
 
 class Auto(commands.Cog):
     def __init__(self, bot):
@@ -38,6 +21,7 @@ class Auto(commands.Cog):
         self.auto_list = []
         self.webhook_list = {}
         self.convert = bot.convert
+        self.utils = bot.utils
         self.scheduler_loop.start()
 
     async def setup(self):
@@ -75,8 +59,8 @@ class Auto(commands.Cog):
 
         s_info_5 = self.convert.get_fest_3(True)
 
-        s_t = convert_time(str(s_info_1['start_time']).split('+')[0])
-        e_t = convert_time(str(s_info_1['end_time']).split('+')[0])
+        s_t = self.utils.convert_time(str(s_info_1['start_time']).split('+')[0])
+        e_t = self.utils.convert_time(str(s_info_1['end_time']).split('+')[0])
 
         description = f'**{s_t} ～ {e_t}**\nㅤ'
         images = []
