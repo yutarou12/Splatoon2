@@ -1,8 +1,11 @@
 import os
 import random
+import json
 import requests
 import math
 import asyncio
+import datetime
+import pytz
 import re
 import datetime
 from typing import Optional
@@ -13,93 +16,87 @@ from discord.ext import commands
 import discord
 
 from libs import Page
+from libs import Convert
 from libs.Convert import is_owner
 from libs.Error import NotOwner
 
 
-class Splatoon(commands.Cog):
-    """スプラトゥーンステージ情報のコア"""
-    def __init__(self, bot):
-        self.bot = bot
-        self.s_endpoint = 'https://stat.ink/api/v2'
-        self.convert = bot.convert
-        self.utils = bot.utils
+def create_text(info, rule, cmd_time=None):
+    s_t = convert_time(str(info['start']))
+    e_t = convert_time(str(info['end']))
 
-    def create_text(self, info, rule, cmd_time=None):
-        s_t = self.utils.convert_time(str(info['start']))
-        e_t = self.utils.convert_time(str(info['end']))
+    if cmd_time:
+        diff_time = convert_diff_time(str(info['end']), cmd_time)
+    else:
+        diff_time = None
 
-        if cmd_time:
-            diff_time = self.utils.convert_diff_time(str(info['end']), cmd_time)
+    if rule == 'coop':
+        stage = info["stage"]["name"] if info["stage"] else "未発表"
+
+        weapons = ''
+        if info['weapons']:
+            for we in info['weapons']:
+                weapons += f'・{we["name"]}\n'
         else:
-            diff_time = None
+            weapons = '未発表'
 
-        if rule == 'coop':
-            stage = info["stage"]["name"] if info["stage"] else "未発表"
-
-            weapons = ''
-            if info['weapons']:
-                for we in info['weapons']:
-                    weapons += f'・{we["name"]}\n'
-            else:
-                weapons = '未発表'
-
-            if diff_time:
-                de_msg = f'**ステージ**\n```\n{stage}\n```\n**支給ブキ**\n```\n{weapons}```\n' \
-                         f'**時間帯**\n```\n{s_t} ～ {e_t}\nあと {diff_time} 分\n```'
-            else:
-                de_msg = f'**ステージ**\n```\n{stage}\n```\n**支給ブキ**\n```\n{weapons}```\n' \
-                         f'**時間帯**\n```\n{s_t} ～ {e_t}\n```'
+        if diff_time:
+            de_msg = f'**ステージ**\n```\n{stage}\n```\n**支給ブキ**\n```\n{weapons}```\n' \
+                     f'**時間帯**\n```\n{s_t} ～ {e_t}\nあと {diff_time} 分\n```'
         else:
-            rule_name = info["rule"]
-            stage = f'・{info["maps"][0]}\n・{info["maps"][1]}'
+            de_msg = f'**ステージ**\n```\n{stage}\n```\n**支給ブキ**\n```\n{weapons}```\n' \
+                     f'**時間帯**\n```\n{s_t} ～ {e_t}\n```'
+    else:
+        rule_name = info["rule"]
+        stage = f'・{info["maps"][0]}\n・{info["maps"][1]}'
 
-            if diff_time:
-                de_msg = f'**ルール**\n```\n{rule_name}```\n**ステージ**\n```\n{stage}\n```\n' \
-                         f'**時間帯**\n```\n{s_t} ～ {e_t}\nあと {diff_time} 分\n```'
-            else:
-                de_msg = f'**ルール**\n```\n{rule_name}```\n**ステージ**\n```\n{stage}\n```\n' \
-                         f'**時間帯**\n```\n{s_t} ～ {e_t}\n```'
-
-        return de_msg
-
-    def create_text_3(self, info, rule, cmd_time=None):
-
-        s_t = self.utils.convert_time(str(info['start_time']).split("+")[0])
-        e_t = self.utils.convert_time(str(info['end_time']).split("+")[0])
-
-        if cmd_time:
-            diff_time = self.utils.convert_diff_time(str(info['end_time']).split("+")[0], cmd_time)
+        if diff_time:
+            de_msg = f'**ルール**\n```\n{rule_name}```\n**ステージ**\n```\n{stage}\n```\n' \
+                     f'**時間帯**\n```\n{s_t} ～ {e_t}\nあと {diff_time} 分\n```'
         else:
-            diff_time = None
+            de_msg = f'**ルール**\n```\n{rule_name}```\n**ステージ**\n```\n{stage}\n```\n' \
+                     f'**時間帯**\n```\n{s_t} ～ {e_t}\n```'
 
-        if rule == 'coop-grouping':
-            stage = info["stage"]["name"] if info["stage"] else "未発表"
+    return de_msg
 
-            weapons = ''
-            if info['weapons']:
-                for we in info['weapons']:
-                    weapons += f'・{we["name"]}\n'
-            else:
-                weapons = '未発表'
-            if diff_time:
-                de_msg = f'**ステージ**\n```\n{stage}\n```\n**支給ブキ**\n```\n{weapons}```\n' \
-                         f'**時間帯**\n```\n{s_t} ～ {e_t}\nあと {diff_time} 分\n```'
-            else:
-                de_msg = f'**ステージ**\n```\n{stage}\n```\n**支給ブキ**\n```\n{weapons}```\n' \
-                         f'**時間帯**\n```\n{s_t} ～ {e_t}\n```'
+
+def create_text_3(info, rule, cmd_time=None):
+
+    s_t = convert_time(str(info['start_time']).split("+")[0])
+    e_t = convert_time(str(info['end_time']).split("+")[0])
+
+    if cmd_time:
+        diff_time = convert_diff_time(str(info['end_time']).split("+")[0], cmd_time)
+    else:
+        diff_time = None
+
+    if rule == 'coop-grouping':
+        stage = info["stage"]["name"] if info["stage"] else "未発表"
+
+        weapons = ''
+        if info['weapons']:
+            for we in info['weapons']:
+                weapons += f'・{we["name"]}\n'
         else:
-            rule_name = info["rule"]['name']
-            stage = f'・{info["stages"][0]["name"]}\n・{info["stages"][1]["name"]}'
+            weapons = '未発表'
+        if diff_time:
+            de_msg = f'**ステージ**\n```\n{stage}\n```\n**支給ブキ**\n```\n{weapons}```\n' \
+                     f'**時間帯**\n```\n{s_t} ～ {e_t}\nあと {diff_time} 分\n```'
+        else:
+            de_msg = f'**ステージ**\n```\n{stage}\n```\n**支給ブキ**\n```\n{weapons}```\n' \
+                     f'**時間帯**\n```\n{s_t} ～ {e_t}\n```'
+    else:
+        rule_name = info["rule"]['name']
+        stage = f'・{info["stages"][0]["name"]}\n・{info["stages"][1]["name"]}'
 
-            if diff_time:
-                de_msg = f'**ルール**\n```\n{rule_name}```\n**ステージ**\n```\n{stage}\n```\n' \
-                         f'**時間帯**\n```\n{s_t} ～ {e_t}\nあと {diff_time} 分\n```'
-            else:
-                de_msg = f'**ルール**\n```\n{rule_name}```\n**ステージ**\n```\n{stage}\n```\n' \
-                         f'**時間帯**\n```\n{s_t} ～ {e_t}\n```'
+        if diff_time:
+            de_msg = f'**ルール**\n```\n{rule_name}```\n**ステージ**\n```\n{stage}\n```\n' \
+                     f'**時間帯**\n```\n{s_t} ～ {e_t}\nあと {diff_time} 分\n```'
+        else:
+            de_msg = f'**ルール**\n```\n{rule_name}```\n**ステージ**\n```\n{stage}\n```\n' \
+                     f'**時間帯**\n```\n{s_t} ～ {e_t}\n```'
 
-        return de_msg
+    return de_msg
 
     @app_commands.command(name='sync')
     @is_owner()
@@ -139,7 +136,7 @@ class Splatoon(commands.Cog):
         else:
             image_url = random.choice([stage_info['maps_ex'][0]['image'], stage_info['maps_ex'][1]['image']])
 
-        embed = discord.Embed(description=self.create_text(stage_info, s_type.value, cmd_time),
+        embed = discord.Embed(description=create_text(stage_info, s_type.value, cmd_time),
                               color=stage_color[s_type.value])
         embed.set_image(url=image_url)
         embed.set_author(name=f'Splatoon2 | {"サーモンラン " if s_type.value == "coop" else s_type.name + "マッチ"}',
@@ -176,7 +173,7 @@ class Splatoon(commands.Cog):
         if s_type.value == 'coop-grouping':
             image_url = stage_info['stage']['image']
 
-            embed = discord.Embed(description=self.create_text_3(stage_info, s_type.value, cmd_time),
+            embed = discord.Embed(description=create_text_3(stage_info, s_type.value, cmd_time),
                                   color=stage_color[s_type.value])
             embed.set_author(name=f'Splatoon3 | {"⚠ ビックラン ⚠" if stage_info["is_big_run"] else stage_name[s_type.value]}',
                              icon_url=stage_icon[s_type.value])
@@ -188,9 +185,9 @@ class Splatoon(commands.Cog):
                 fest_info = self.convert.get_fest_3(stage_time)
 
                 stage = f'・{fest_info["stages"][0]["name"]}\n・{fest_info["stages"][1]["name"]}'
-                s_t = self.utils.convert_time(str(fest_info['start_time']).split("+")[0])
-                e_t = self.utils.convert_time(str(fest_info['end_time']).split("+")[0])
-                diff_time = self.utils.convert_diff_time(str(fest_info['end_time']).split("+")[0], cmd_time)
+                s_t = convert_time(str(fest_info['start_time']).split("+")[0])
+                e_t = convert_time(str(fest_info['end_time']).split("+")[0])
+                diff_time = convert_diff_time(str(fest_info['end_time']).split("+")[0], cmd_time)
 
                 if fest_info['is_tricolor']:
                     tricolor = fest_info['tricolor_stage']
@@ -286,6 +283,13 @@ class Splatoon(commands.Cog):
         else:
             raise error
 
+    # @app_commands.command(name='rect')
+    # async def slash_rect(self, ctx, participant: Option(int, "募集する人数を指定します。", name='人数'), *,
+    #                      text: Option(str, "募集の際のコメントを設定します。", name='コメント', default='')):
+    #     """スプラトゥーンのマッチ募集するコマンド"""
+    #     modal = MyModal()
+    #     await ctx.response.send_modal(modal)
+
     @app_commands.command(name='list')
     async def stage_list(self, ctx):
         """スプラトゥーンステージ情報の一覧を表示するコマンド"""
@@ -304,7 +308,7 @@ class Splatoon(commands.Cog):
         regular_page = []
         for info in r_stage_info:
             embed = discord.Embed(title=f'{battle_1 if battle_1 else ""}  Splatoon2 | レギュラーマッチ',
-                                  description=self.create_text(info, 'regular'),
+                                  description=create_text(info, 'regular'),
                                   color=stage_color['レギュラー'])
             embed.set_image(url=random.choice([info['maps_ex'][0]['image'], info['maps_ex'][1]['image']]))
             regular_page.append(embed)
@@ -312,7 +316,7 @@ class Splatoon(commands.Cog):
         gachi_page = []
         for info in g_stage_info:
             embed = discord.Embed(title=f'{battle_2 if battle_2 else ""} Splatoon2 | ガチマッチ',
-                                  description=self.create_text(info, 'gachi'),
+                                  description=create_text(info, 'gachi'),
                                   color=stage_color['ガチ'])
             embed.set_image(url=random.choice([info['maps_ex'][0]['image'], info['maps_ex'][1]['image']]))
             gachi_page.append(embed)
@@ -320,7 +324,7 @@ class Splatoon(commands.Cog):
         league_page = []
         for info in l_stage_info:
             embed = discord.Embed(title=f'{battle_3 if battle_3 else ""} Splatoon2 | リーグマッチ',
-                                  description=self.create_text(info, 'league'),
+                                  description=create_text(info, 'league'),
                                   color=stage_color['リーグ'])
             embed.set_image(url=random.choice([info['maps_ex'][0]['image'], info['maps_ex'][1]['image']]))
             league_page.append(embed)
@@ -328,7 +332,7 @@ class Splatoon(commands.Cog):
         coop_page = []
         for info in c_stage_info:
             embed = discord.Embed(title=f'{battle_4 if battle_4 else ""} Splatoon2 | サーモンラン',
-                                  description=self.create_text(info, 'coop'),
+                                  description=create_text(info, 'coop'),
                                   color=stage_color['サーモンラン'])
             if info['stage']:
                 embed.set_image(url=info['stage']['image'])

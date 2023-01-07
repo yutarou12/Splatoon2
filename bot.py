@@ -9,7 +9,6 @@ from dotenv import load_dotenv
 from libs import Database
 from libs import Convert
 from libs import Error
-from libs import Utils
 load_dotenv()
 
 config = {
@@ -124,7 +123,6 @@ async def on_ready():
 if __name__ == '__main__':
     bot.db = Database.Database()
     bot.convert = Convert.Convert()
-    bot.utils = Utils.Utils()
     bot.config = config
 
     bot.run(os.getenv('DISCORD_BOT_TOKEN'))
