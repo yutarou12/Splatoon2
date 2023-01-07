@@ -101,29 +101,6 @@ class Splatoon(commands.Cog):
 
         return de_msg
 
-
-def convert_time(time):
-    date_dt = datetime.datetime.strptime(time, '%Y-%m-%dT%H:%M:%S')
-    new_date_dt = date_dt.strftime('%m/%d | %H時')
-    return new_date_dt
-
-
-def convert_diff_time(end_time, cmd_time: datetime):
-    date_dt = datetime.datetime.strptime(end_time, '%Y-%m-%dT%H:%M:%S')
-
-    cmd_time_tokyo = cmd_time.astimezone(pytz.timezone('Asia/Tokyo')).replace(tzinfo=datetime.timezone.utc)
-    date_dt_tokyo = date_dt.replace(tzinfo=datetime.timezone.utc)
-    diff = (date_dt_tokyo - cmd_time_tokyo).seconds / 60
-    return str(math.floor(diff))
-
-
-class Splatoon(commands.Cog):
-    """スプラトゥーンステージ情報のコア"""
-    def __init__(self, bot):
-        self.bot = bot
-        self.s_endpoint = 'https://stat.ink/api/v2'
-        self.convert: Convert = bot.convert
-
     @app_commands.command(name='sync')
     @is_owner()
     async def slash_sync(self, interaction):
