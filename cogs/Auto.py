@@ -18,7 +18,6 @@ class Auto(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.session = None
-        self.auto_list = []
         self.webhook_list = {}
         self.convert = bot.convert
         self.utils = bot.utils
@@ -162,9 +161,9 @@ class Auto(commands.Cog):
         if not self.webhook_list:
             await self.setup()
 
-        self.auto_list.append(interaction.channel.id)
-        if isinstance(interaction.channel, (discord.VoiceChannel, discord.CategoryChannel, discord.ForumChannel, discord.StageChannel)):
+        if isinstance(interaction.channel, (discord.VoiceChannel, discord.CategoryChannel, discord.ForumChannel, discord.StageChannel, discord.Thread)):
             return await interaction.response.send_message('テキストチャンネルで実行してください。', ephemeral=True)
+
         webhook = await interaction.channel.create_webhook(name='スプラトゥーンステージ情報Bot', avatar=(await self.bot.user.avatar.read()))
         webhook_url = f'https://discord.com/api/webhooks/{webhook.id}/{webhook.token}'
         set_data = self.bot.db.set_stage_automatic(interaction.channel.id, webhook_url)
