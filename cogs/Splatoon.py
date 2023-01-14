@@ -212,7 +212,7 @@ class Splatoon(commands.Cog):
             else:
                 image_url = random.choice([stage_info['stages'][0]['image'], stage_info['stages'][1]['image']])
 
-                embed = discord.Embed(description=create_text_3(stage_info, s_type.value, cmd_time),
+                embed = discord.Embed(description=self.create_text_3(stage_info, s_type.value, cmd_time),
                                       color=stage_color[s_type.value])
                 embed.set_author(name=f'Splatoon3 | {stage_name[s_type.value]}',
                                  icon_url=stage_icon[s_type.value])
