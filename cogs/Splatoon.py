@@ -13,8 +13,6 @@ from discord.ext import commands
 import discord
 
 from libs import Page
-from libs.Convert import is_owner
-from libs.Error import NotOwner
 
 
 class Splatoon(commands.Cog):
@@ -100,19 +98,6 @@ class Splatoon(commands.Cog):
                          f'**時間帯**\n```\n{s_t} ～ {e_t}\n```'
 
         return de_msg
-
-    @app_commands.command(name='sync')
-    @is_owner()
-    async def slash_sync(self, interaction):
-        await self.bot.tree.sync()
-        return await interaction.response.send_message('Synced', ephemeral=True)
-
-    @slash_sync.error
-    async def slash_sync_error(self, interaction, error):
-        if isinstance(error, NotOwner):
-            return await interaction.response.send_message('You are not bot owner', ephemeral=True)
-        else:
-            raise error
 
     @app_commands.command(name='stage')
     @app_commands.describe(s_type='ステージ情報を選択してください', s_next_text='時間帯')
