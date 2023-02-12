@@ -164,15 +164,19 @@ class Auto(commands.Cog):
         if isinstance(interaction.channel, (discord.VoiceChannel, discord.CategoryChannel, discord.ForumChannel, discord.StageChannel, discord.Thread)):
             return await interaction.response.send_message('テキストチャンネルで実行してください。', ephemeral=True)
 
+        data = self.bot.db.get_stage_automatic(interaction.channel.id)
+        if data:
+            return await interaction.response.send_message('既に設定されています。', ephemeral=True)
+
         webhook = await interaction.channel.create_webhook(name='スプラトゥーンステージ情報Bot', avatar=(await self.bot.user.avatar.read()))
         webhook_url = f'https://discord.com/api/webhooks/{webhook.id}/{webhook.token}'
         set_data = self.bot.db.set_stage_automatic(interaction.channel.id, webhook_url)
-        if not set_data:
-            return await interaction.response.send_message('既に設定されています。', ephemeral=True)
-
-        self.webhook_list[interaction.channel.id] = webhook_url
-
-        return await interaction.response.send_message('自動送信の設定が完了しました！', ephemeral=True)
+        if set_data:
+            self.webhook_list[interaction.channel.id] = webhook_url
+            return await interaction.response.send_message('自動送信の設定が完了しました！', ephemeral=True)
+        else:
+            await webhook.delete()
+            return await interaction.response.send_message('エラーが発生しました。再度お試しください。', ephemeral=True)
 
     @auto_setting.error
     async def auto_setting_error(self, interaction, error):

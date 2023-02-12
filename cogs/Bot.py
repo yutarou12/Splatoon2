@@ -35,8 +35,8 @@ class Bot(commands.Cog):
         embed.add_field(name='</stage3:1018766711379476480>', value='Splatoon3のステージを表示します。(Beta版)', inline=False)
         embed.add_field(name='</list:962729788626333707>', value='ステージ情報の一覧を表示します。', inline=False)
         embed.add_field(name='</weapon:969392810799276142>', value='ブキガチャをすることが出来ます。', inline=False)
-        embed.add_field(name='</auto-set:1025669000576913440>', value='ステージ情報を自動送信するチャンネルを設定します。(Beta版)', inline=False)
-        embed.add_field(name='</auto-del:1025669000576913441>', value='自動送信設定を削除します。(Beta版)', inline=False)
+        embed.add_field(name='</auto-set:1025669000576913440>', value='ステージ情報を自動送信するチャンネルを設定します。', inline=False)
+        embed.add_field(name='</auto-del:1025669000576913441>', value='自動送信設定を削除します。', inline=False)
         embed.add_field(name='</friend:1028822298528059464>', value='フレンドコードを表示します。', inline=False)
         embed.add_field(name='</friend-setting:1028822298528059465>', value='フレンドコードの設定ができます。', inline=False)
 
@@ -54,10 +54,7 @@ class Bot(commands.Cog):
         """BOTの情報を表示します。"""
         owner = await self.bot.fetch_user((await self.bot.application_info()).team.owner_id)
         info_guilds = len(self.bot.guilds)
-        info_user = len(self.bot.users)
-        info_ch = 0
-        for guild in self.bot.guilds:
-            info_ch += len(guild.channels)
+        auto_ch_len = len(self.bot.db.get_webhook_list())
         embed = discord.Embed(title=f'{self.bot.user}')
         embed.set_thumbnail(url=self.bot.user.avatar.url)
         embed.add_field(name='開発者',
@@ -71,19 +68,20 @@ class Bot(commands.Cog):
                               f'/help でコマンドの説明を見ることが出来ます```',
                         inline=False)
         embed.add_field(name='詳細',
-                        value=f'```yml\n[導入サーバー数] {info_guilds}\n[ユーザー数] {info_user}\n[チャンネル数] {info_ch}\n```',
-                        inline=False)
-        embed.add_field(name='各種リンク',
-                        value=f'[BOTの招待リンク]({self.bot.config["oauth_url"]}) | '
-                              '[サポートサーバー](https://discord.gg/k5Feum44gE) | '
-                              '[開発者のサイト](https://syutarou.xyz)',
+                        value=f'```yml\n[導入サーバー数] {info_guilds}\n[自動送信チャンネル数] {auto_ch_len}\n```',
                         inline=False)
 
         view = ui.View()
         view.add_item(discord.ui.Button(
-            label='プライバシーポリシー', style=discord.ButtonStyle.url, url='https://splatoon.syutarou.xyz/privacy-policy'))
+            label='BOTの招待リンク', style=discord.ButtonStyle.url, url=f'{self.bot.config["oauth_url"]}', row=1))
         view.add_item(discord.ui.Button(
-            label='利用規約', style=discord.ButtonStyle.url, url='https://splatoon.syutarou.xyz/terms/'))
+            label='サポートサーバー', style=discord.ButtonStyle.url, url='https://discord.gg/k5Feum44gE', row=1))
+        view.add_item(discord.ui.Button(
+            label='開発者のサイト', style=discord.ButtonStyle.url, url='https://syutarou.xyz', row=1))
+        view.add_item(discord.ui.Button(
+            label='プライバシーポリシー', style=discord.ButtonStyle.url, url='https://splatoon.syutarou.xyz/privacy-policy', row=2))
+        view.add_item(discord.ui.Button(
+            label='利用規約', style=discord.ButtonStyle.url, url='https://splatoon.syutarou.xyz/terms/', row=2))
         return await ctx.response.send_message(embed=embed, ephemeral=True, view=view)
 
 
