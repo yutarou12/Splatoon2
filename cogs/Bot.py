@@ -20,25 +20,23 @@ class Bot(commands.Cog):
     @app_commands.command(name='invite')
     async def invite(self, ctx):
         """BOTの招待リンクを出します。"""
-        return await ctx.response.send_message(f'招待リンクです\n{self.bot.config["oauth_url"]}', ephemeral=True)
+        return await ctx.response.send_message(f'これが招待リンクだ。\n{self.bot.config["oauth_url"]}', ephemeral=True)
 
     @app_commands.command(name='help')
     async def _help(self, ctx):
         """Botのヘルプを表示します。"""
-        embed = discord.Embed(title='ヘルプ', color=0x00ff00,
-                              description='```\nBeta版と書かれているものは、開発中のコマンドです。\n予期せず仕様が変わる場合がございます。ご了承ください。```\n')
-        embed.add_field(name='</help:962647694613028916>', value='ヘルプを表示します。', inline=False)
-        embed.add_field(name='</ping:960404289837223986>', value='Botの応答速度を測ります。', inline=False)
-        embed.add_field(name='</invite:960404290571218984>', value='BOTの招待リンクを出します。', inline=False)
-        embed.add_field(name='</about:960404291351379978>', value='BOTの情報を表示します。', inline=False)
-        embed.add_field(name='</stage:941490889635807232>', value='Splatoon2のステージを表示します。', inline=False)
-        embed.add_field(name='</stage3:1018766711379476480>', value='Splatoon3のステージを表示します。(Beta版)', inline=False)
-        embed.add_field(name='</list:962729788626333707>', value='ステージ情報の一覧を表示します。', inline=False)
-        embed.add_field(name='</weapon:969392810799276142>', value='ブキガチャをすることが出来ます。', inline=False)
-        embed.add_field(name='</auto-set:1025669000576913440>', value='ステージ情報を自動送信するチャンネルを設定します。', inline=False)
-        embed.add_field(name='</auto-del:1025669000576913441>', value='自動送信設定を削除します。', inline=False)
-        embed.add_field(name='</friend:1028822298528059464>', value='フレンドコードを表示します。', inline=False)
-        embed.add_field(name='</friend-setting:1028822298528059465>', value='フレンドコードの設定ができます。', inline=False)
+        embed = discord.Embed(title='コマンド一覧', color=0x00ff00)
+        embed.add_field(name='</ping:960404289837223986>', value='Botが反応するか確かめれるぞ。', inline=False)
+        embed.add_field(name='</invite:960404290571218984>', value='BOTの招待リンクをだすぞ。', inline=False)
+        embed.add_field(name='</about:960404291351379978>', value='BOTの情報を見ることが出来る。', inline=False)
+        embed.add_field(name='</stage:941490889635807232>', value='Splatoon2のステージを表示するようだ。', inline=False)
+        embed.add_field(name='</stage3:1018766711379476480>', value='Splatoon3のステージを表示するようだ。', inline=False)
+        embed.add_field(name='</list:962729788626333707>', value='ステージ情報の一覧を表示するぞ(2のみ)。', inline=False)
+        embed.add_field(name='</weapon:969392810799276142>', value='おススメのブキをブキチが教えてくれるぞ!', inline=False)
+        embed.add_field(name='</auto-set:1025669000576913440>', value='ステージ情報を自動送信するチャンネルを設定するぞ。', inline=False)
+        embed.add_field(name='</auto-del:1025669000576913441>', value='自動送信設定を削除するぞ。', inline=False)
+        embed.add_field(name='</friend:1028822298528059464>', value='フレンドコードを表示するぞ。', inline=False)
+        embed.add_field(name='</friend-setting:1028822298528059465>', value='フレンドコードの設定ができるみたいだ。', inline=False)
 
         view = ui.View()
         view.add_item(discord.ui.Button(
@@ -65,7 +63,7 @@ class Bot(commands.Cog):
                         inline=False)
         embed.add_field(name='Prefix',
                         value=f'```yml\n/ (スラッシュコマンド)\n'
-                              f'/help でコマンドの説明を見ることが出来ます```',
+                              f'/help でコマンド一覧を見ることが出来るぞ```',
                         inline=False)
         embed.add_field(name='詳細',
                         value=f'```yml\n[導入サーバー数] {info_guilds}\n[自動送信チャンネル数] {auto_ch_len}\n```',

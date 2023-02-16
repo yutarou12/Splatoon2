@@ -162,27 +162,27 @@ class Auto(commands.Cog):
             await self.setup()
 
         if isinstance(interaction.channel, (discord.VoiceChannel, discord.CategoryChannel, discord.ForumChannel, discord.StageChannel, discord.Thread)):
-            return await interaction.response.send_message('テキストチャンネルで実行してください。', ephemeral=True)
+            return await interaction.response.send_message('テキストチャンネルで実行せよ!', ephemeral=True)
 
         data = self.bot.db.get_stage_automatic(interaction.channel.id)
         if data:
-            return await interaction.response.send_message('既に設定されています。', ephemeral=True)
+            return await interaction.response.send_message('おっと・・・既に設定されているみたいだ。', ephemeral=True)
 
         webhook = await interaction.channel.create_webhook(name='スプラトゥーンステージ情報Bot', avatar=(await self.bot.user.avatar.read()))
         webhook_url = f'https://discord.com/api/webhooks/{webhook.id}/{webhook.token}'
         set_data = self.bot.db.set_stage_automatic(interaction.channel.id, webhook_url)
         if set_data:
             self.webhook_list[interaction.channel.id] = webhook_url
-            return await interaction.response.send_message('自動送信の設定が完了しました！', ephemeral=True)
+            return await interaction.response.send_message('自動送信の設定が出来たぞ!', ephemeral=True)
         else:
             await webhook.delete()
-            return await interaction.response.send_message('エラーが発生しました。再度お試しください。', ephemeral=True)
+            return await interaction.response.send_message('エラーが発生してしまった。もう一度試してみてくれ!', ephemeral=True)
 
     @auto_setting.error
     async def auto_setting_error(self, interaction, error):
         if isinstance(error, app_commands.MissingPermissions):
             return await interaction.response.send_message(
-                content=f'このコマンドを実行するには {error.missing_permissions[0]} の権限が必要です。', ephemeral=True)
+                content=f'このコマンドを実行するには {error.missing_permissions[0]} の権限が必要みたいだ。', ephemeral=True)
         else:
             raise error
 
@@ -196,7 +196,7 @@ class Auto(commands.Cog):
         data = self.bot.db.get_stage_automatic(interaction.channel.id)
 
         if not data:
-            return await interaction.response.send_message('このチャンネルには設定されていません。', ephemeral=True)
+            return await interaction.response.send_message('このチャンネルには設定されていないみたいだ。', ephemeral=True)
         else:
             self.bot.db.del_stage_automatic(interaction.channel.id)
             self.webhook_list.pop(interaction.channel.id)
@@ -204,13 +204,13 @@ class Auto(commands.Cog):
             webhook = discord.utils.get(webhooks, name='スプラトゥーンステージ情報Bot')
             if webhook:
                 await webhook.delete()
-            return await interaction.response.send_message('設定を削除しました。', ephemeral=True)
+            return await interaction.response.send_message('設定を削除したぞ!', ephemeral=True)
 
     @auto_delete.error
     async def auto_delete_error(self, interaction, error):
         if isinstance(error, app_commands.MissingPermissions):
             return await interaction.response.send_message(
-                content=f'このコマンドを実行するには {error.missing_permissions[0]} の権限が必要です。', ephemeral=True)
+                content=f'このコマンドを実行するには {error.missing_permissions[0]} の権限が必要みたいだ。', ephemeral=True)
         else:
             raise error
 

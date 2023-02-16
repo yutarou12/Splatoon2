@@ -44,7 +44,7 @@ class MyBot(commands.Bot):
             return
         elif isinstance(error, discord.Forbidden):
             return await interaction.response.send_message(
-                'Botの権限を確認してください。\n`最低限必要な権限`\n```\n・ウェブフックの管理\n```', ephemeral=True)
+                'Botの権限を確認してみてくれ。\n`最低限必要な権限`\n```\n・ウェブフックの管理\n```', ephemeral=True)
         elif isinstance(error, discord.errors.NotFound):
             return
 
@@ -66,8 +66,8 @@ class MyBot(commands.Bot):
             embed_logs.set_footer(text=f"{interaction.user}'s DM_CHANNEL C:{interaction.channel_id}")
         await OWNER.send(embed=embed_logs)
 
-        embed_error = discord.Embed(title='エラーが発生しました。', color=0xff0000)
-        msg = 'エラーが発生しました。\n コマンドが正しく入力されているにも関わらずエラーが出る際には、公式サーバーまでお問い合わせください。\n  [公式サーバー](https://discord.gg/k5Feum44gE)\n'
+        embed_error = discord.Embed(title='エラー発生', color=0xff0000)
+        msg = 'エラーが発生した模様だ。\n コマンドが正しく入力されているにも関わらずエラーが出る時には、公式サーバーまで来てくれると助かるぞ。\n  [公式サーバー](https://discord.gg/k5Feum44gE)\n'
         embed_error.add_field(name='メッセージ', value=msg, inline=False)
         try:
             await interaction.response.send_message(embed=embed_error, ephemeral=True)
