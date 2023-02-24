@@ -216,7 +216,18 @@ class Splatoon(commands.Cog):
             weapon_list_jp = [(i['name']['ja_JP'], i['key']) for i in weapon]
 
         weapons = random.sample(weapon_list_jp, 6)
-        weapon_files = [discord.File(f'./images/weapons/{version}/{f[1]}.png', filename='image.png') for f in weapons]
+        base_path = f'./images/weapons/{version}'
+        weapon_files = list()
+        for f in weapons:
+            if not os.path.exists(f'{base_path}/{f[1]}.png'):
+                new_weapon = random.choice(weapon_list_jp)
+                if os.path.exists(f'{base_path}/{new_weapon[1]}.png'):
+                    weapon_files.append(discord.File(f'{base_path}/{new_weapon[1]}.png', filename='image.png'))
+                else:
+                    pass
+            else:
+                weapon_files.append(
+                    discord.File(f'{base_path}/{f[1]}.png', filename='image.png'))
 
         embed = discord.Embed(title='ブキガチャ',
                               description='今の君におススメなのは...')
@@ -229,9 +240,16 @@ class Splatoon(commands.Cog):
             await interaction.edit_original_response(embed=embed, attachments=[weapon_files[i]])
             await asyncio.sleep(1)
 
-        ch_weapon_name, ch_weapon_id = random.choice(weapon_list_jp)
+        ch_weapon_name, ch_weapon_id = (None, None)
+        while True:
+            w_name, w_id = random.choice(weapon_list_jp)
+            if os.path.exists(f'{base_path}/{w_id}.png'):
+                ch_weapon_name, ch_weapon_id = w_name, w_id
+                break
+            else:
+                continue
 
-        file = discord.File(f'./images/weapons/{version}/{ch_weapon_id}.png', filename='image.png')
+        file = discord.File(f'{base_path}/{ch_weapon_id}.png', filename='image.png')
 
         if version == 'v2':
             embed = discord.Embed(title='ブキガチャ 結果',
