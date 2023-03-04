@@ -106,7 +106,7 @@ class Splatoon(commands.Cog):
                           s_next_text=[Choice(name='今', value='今'), Choice(name='次', value='次')])
     @app_commands.rename(s_type='ルール', s_next_text='時間帯')
     async def slash_stage(self, interaction, s_type: Choice[str], s_next_text: Choice[str] = '今'):
-        """Splatoon2のステージ情報を表示するコマンド"""
+        """Splatoon2のステージ情報を表示するぞ!"""
         battle_1 = 'https://www.nintendo.co.jp/switch/aab6a/assets/images/battle-sec01_logo.png'
         battle_2 = 'https://www.nintendo.co.jp/switch/aab6a/assets/images/battle-sec02_logo.png'
         battle_3 = 'https://www.nintendo.co.jp/switch/aab6a/assets/images/battle-sec03_logo.png'
@@ -140,7 +140,7 @@ class Splatoon(commands.Cog):
                           s_next_text=[Choice(name='今', value='今'), Choice(name='次', value='次')])
     @app_commands.rename(s_type='ルール', s_next_text='時間帯')
     async def slash_stage3(self, interaction, s_type: Choice[str], s_next_text: Choice[str] = '今'):
-        """Splatoon3のステージ情報を表示するコマンド"""
+        """Splatoon3のステージ情報を表示するぞ!"""
         battle_1 = 'https://www.nintendo.co.jp/switch/aab6a/assets/images/battle-sec01_logo.png'
         battle_2 = 'https://www.nintendo.co.jp/switch/aab6a/assets/images/battle-sec02_logo.png'
         x_match_icon = 'https://splatoon.syutarou.xyz/images/x_match.png'
@@ -248,7 +248,7 @@ class Splatoon(commands.Cog):
     @app_commands.command(name='weapon')
     @app_commands.checks.cooldown(1, 60*60*2)
     async def slash_weapon(self, interaction):
-        """ブキガチャコマンド"""
+        """ブキチ君がブキを選んでくれるぞ!(Splatoon2)"""
         await self.weapon_lottery(interaction, 'v2')
 
     @slash_weapon.error
@@ -261,7 +261,7 @@ class Splatoon(commands.Cog):
     @app_commands.command(name='weapon3')
     @app_commands.checks.cooldown(1, 60 * 60 * 2)
     async def slash_weapon3(self, interaction):
-        """ブキガチャコマンド"""
+        """ブキチ君がブキを選んでくれるぞ!"""
         await self.weapon_lottery(interaction, 'v3')
 
     @slash_weapon3.error
@@ -273,7 +273,7 @@ class Splatoon(commands.Cog):
 
     @app_commands.command(name='list')
     async def stage_list(self, ctx):
-        """スプラトゥーンステージ情報の一覧を表示するコマンド"""
+        """スプラトゥーン2ステージ情報の一覧を見れるぞ!"""
         await ctx.response.defer(ephemeral=True)
         stage_color = {'レギュラー': 261888, 'ガチ': 14840346, 'リーグ': 15409787, 'サーモンラン': 15442812}
         r_stage_info = self.convert.get_stage('regular', stage_all=True)
@@ -350,10 +350,10 @@ class Splatoon(commands.Cog):
         await paginator.respond(ctx, ephemeral=True)
 
     @app_commands.command(name='friend')
-    @app_commands.describe(user='ユーザーを選択してください。')
+    @app_commands.describe(user='ユーザーを選択するみたいだ。')
     @app_commands.rename(user='ユーザー')
     async def friends_slash(self, interaction: discord.Interaction, user: Optional[discord.Member]):
-        """フレンドコードを表示/検索するコマンド"""
+        """フレンドコードを表示/検索することができるぞ!"""
         if not user:
             user_data = self.bot.db.friend_code_get(interaction.user.id)
             if not user_data:
@@ -386,7 +386,7 @@ class Splatoon(commands.Cog):
     @friend_group.command(name='登録')
     @app_commands.rename(arg='フレンドコード')
     async def friends_set_slash(self, interaction: discord.Interaction, arg: str):
-        """フレンドコードを登録します
+        """フレンドコードを登録するぞ!
         
         Parameters
         -----------
@@ -411,7 +411,7 @@ class Splatoon(commands.Cog):
 
     @friend_group.command(name='削除')
     async def friends_del_slash(self, interaction: discord.Interaction):
-        """フレンドコードの設定を削除します"""
+        """フレンドコードの設定を削除するぞ!"""
 
         user_data = self.bot.db.friend_code_get(interaction.user.id)
         if not user_data:
@@ -426,7 +426,7 @@ class Splatoon(commands.Cog):
 
     @friend_group.command(name='公開非公開')
     async def friends_public_slash(self, interaction: discord.Interaction):
-        """フレンドコードの公開範囲の設定をします"""
+        """フレンドコードの公開範囲の設定をするぞ!"""
 
         user_data = self.bot.db.friend_code_get(interaction.user.id)
         if not user_data:

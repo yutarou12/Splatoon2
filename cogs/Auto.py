@@ -157,7 +157,7 @@ class Auto(commands.Cog):
     @app_commands.command(name='auto-set')
     @app_commands.checks.has_permissions(administrator=True)
     async def auto_setting(self, interaction: discord.Interaction):
-        """ステージ情報の定期送信の設定を行います"""
+        """ステージ情報の定期送信の設定をするぞ!"""
         if not self.webhook_list:
             await self.setup()
 
@@ -189,7 +189,7 @@ class Auto(commands.Cog):
     @app_commands.command(name='auto-del')
     @app_commands.checks.has_permissions(administrator=True)
     async def auto_delete(self, interaction: discord.Interaction):
-        """ステージ情報の定期送信の設定を削除します"""
+        """ステージ情報の定期送信の設定を削除するぞ!"""
         if not self.webhook_list:
             await self.setup()
 

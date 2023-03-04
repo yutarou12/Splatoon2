@@ -14,17 +14,17 @@ class Bot(commands.Cog):
 
     @app_commands.command(name='ping')
     async def ping(self, ctx):
-        """Botの応答速度を測ります。"""
+        """Botが反応するか確かめれるぞ!"""
         return await ctx.response.send_message(f'🏓 Pong! - {math.floor(self.bot.latency * 1000)} ms', ephemeral=True)
 
     @app_commands.command(name='invite')
     async def invite(self, ctx):
-        """BOTの招待リンクを出します。"""
+        """BOTの招待リンクを出すぞ!"""
         return await ctx.response.send_message(f'これが招待リンクだ。\n{self.bot.config["oauth_url"]}', ephemeral=True)
 
     @app_commands.command(name='help')
     async def _help(self, ctx):
-        """Botのヘルプを表示します。"""
+        """Botのヘルプを表示するぞ!"""
         embed = discord.Embed(title='コマンド一覧', color=0x00ff00)
         embed.add_field(name='</ping:960404289837223986>', value='Botが反応するか確かめれるぞ。', inline=False)
         embed.add_field(name='</invite:960404290571218984>', value='BOTの招待リンクをだすぞ。', inline=False)
@@ -49,7 +49,7 @@ class Bot(commands.Cog):
 
     @app_commands.command(name='about')
     async def about(self, ctx):
-        """BOTの情報を表示します。"""
+        """BOTの情報を見れるぞ!"""
         owner = await self.bot.fetch_user((await self.bot.application_info()).team.owner_id)
         info_guilds = len(self.bot.guilds)
         auto_ch_len = len(self.bot.db.get_webhook_list())
