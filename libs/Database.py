@@ -1,4 +1,5 @@
 import sqlite3
+
 dbpath = './db/data.sqlite'
 connection = sqlite3.connect(dbpath)
 connection.isolation_level = None
@@ -16,6 +17,8 @@ class Database:
         self.cursor.execute(
             'CREATE TABLE IF NOT EXISTS friend_code(user_id INTEGER PRIMARY KEY, friend_code, public_code INTEGER)')
         self.cursor.execute('CREATE TABLE IF NOT EXISTS command_log(command_name, command_count INTEGER)')
+        self.cursor.execute(
+            'CREATE TABLE IF NOT EXISTS premium_data(guild_id INTEGER PRIMARY KEY, premium, regular, bankara_c, bankara_o, x, salmon)')
 
     def get_auto_channel(self):
         self.setup()
@@ -83,3 +86,30 @@ class Database:
             self.cursor.execute('UPDATE command_log SET command_count=? WHERE command_name=?',
                                 (command_count + 1, command_name))
         return True
+
+    def premium_data_get(self, guild_id, channel_id):
+        self.setup()
+        res = self.cursor.execute('SELECT * FROM premium_data WHERE guild_id=? AND channel_id=?',
+                                  (guild_id, channel_id))
+        data = res.fetchone()
+        print(data)
+        if not data:
+            self.cursor.execute('INSERT INTO premium_data VALUES (?,?,?,?,?,?,?,?)',
+                                (guild_id, channel_id, 0, 1, 1, 1, 0, 1))
+            return {'レギュラー': 1, 'バンカラC': 1, 'バンカラO': 1, 'x': 0, 'サーモン': 1}
+        else:
+            raw_data = {'レギュラー': int(data[2]), 'バンカラC': int(data[3]), 'バンカラO': int(data[4]),
+                        'x': int(data[5]), 'サーモン': int(data[6])}
+            return raw_data
+
+    def premium_data_add(self, guild_id, channel_id, data: dict):
+        self.setup()
+        raw = self.cursor.execute('SELECT premium FROM premium_data WHERE guild_id=? AND channel_id',
+                                  (guild_id, channel_id))
+        data_premium = raw.fetchone()[0]
+        self.cursor.execute('DELETE FROM premium_data WHERE guild_id=? AND channel_id=?',
+                            (guild_id, channel_id))
+
+        reg, ban_c, ban_o, x_m, sam = list(data.values())
+        self.cursor.execute('INSERT INTO premium_data VALUES (?,?,?,?,?,?,?,?)',
+                            (guild_id, channel_id, data_premium, reg, ban_c, ban_o, x_m, sam))
