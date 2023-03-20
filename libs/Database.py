@@ -104,7 +104,7 @@ class Database:
 
     def premium_data_add(self, guild_id, channel_id, data: dict):
         self.setup()
-        raw = self.cursor.execute('SELECT premium FROM premium_data WHERE guild_id=? AND channel_id',
+        raw = self.cursor.execute('SELECT premium FROM premium_data WHERE guild_id=? AND channel_id=?',
                                   (guild_id, channel_id))
         data_premium = raw.fetchone()[0]
         self.cursor.execute('DELETE FROM premium_data WHERE guild_id=? AND channel_id=?',
