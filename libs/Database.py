@@ -18,7 +18,7 @@ class Database:
             'CREATE TABLE IF NOT EXISTS friend_code(user_id INTEGER PRIMARY KEY, friend_code, public_code INTEGER)')
         self.cursor.execute('CREATE TABLE IF NOT EXISTS command_log(command_name, command_count INTEGER)')
         self.cursor.execute(
-            'CREATE TABLE IF NOT EXISTS premium_data(guild_id INTEGER PRIMARY KEY, premium, regular, bankara_c, bankara_o, x, salmon)')
+            'CREATE TABLE IF NOT EXISTS premium_data(guild_id INTEGER PRIMARY KEY, channel_id INTEGER, premium, regular, bankara_c, bankara_o, x, salmon)')
 
     def get_auto_channel(self):
         self.setup()
