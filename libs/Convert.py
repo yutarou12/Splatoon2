@@ -56,7 +56,8 @@ class Convert:
         regular = data['regular'][1]
         bankara_challenge = data['bankara_challenge'][1]
         bankara_open = data['bankara_open'][1]
-        result_data = {'regular': regular, 'bankara_challenge': bankara_challenge, 'bankara_open': bankara_open}
+        x = data['x'][1]
+        result_data = {'regular': regular, 'bankara_challenge': bankara_challenge, 'bankara_open': bankara_open, 'x': x}
         return result_data
 
     def get_stage_3(self, game, time_next: bool = False, stage_all: bool = False) -> Union[dict, bool]:
