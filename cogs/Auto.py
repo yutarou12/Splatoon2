@@ -147,8 +147,9 @@ class Auto(commands.Cog):
             msg_coop(coop)
         if images:
             embed.set_image(url=random.choice(images))
-        elif ch_data.get('サーモン'):
-            embed.set_image(url=coop_image[0])
+        else:
+            if ch_data.get('サーモン'):
+                embed.set_image(url=coop_image[0])
 
         return embed
 
@@ -172,7 +173,7 @@ class Auto(commands.Cog):
         tasks = []
         for channel in self.webhook_list.keys():
             data = self.bot.db.get_premium_data(channel)
-            embed_data = self.create_msg(ch_data=data, data=all_data, embed=embed)
+            embed_data = self.create_msg(ch_data=data, data=all_data)
             tasks.append(self.send_msg(embed_data, channel))
 
         logs = await asyncio.gather(*tasks)
