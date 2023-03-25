@@ -6,7 +6,6 @@ import pytz
 import aiohttp
 import json
 import datetime
-import time
 import random
 
 import discord
