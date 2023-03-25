@@ -214,11 +214,11 @@ class Auto(commands.Cog):
         set_data = self.bot.db.set_stage_automatic(channel.id, webhook_url)
         if set_data:
             self.webhook_list[channel.id] = webhook_url
-            self.bot.db.premium_new_data(interaction.guild_id, interaction.channel_id)
+            self.bot.db.premium_new_data(interaction.guild_id, channel.id)
             return await interaction.response.send_message('自動送信の設定が出来たぞ!', ephemeral=True)
         else:
             await webhook.delete()
-            return await interaction.response.send_message('エラーが発生してしまった。もう一度試してみてくれ!', ephemeral=True)
+            return await interaction.response.send_message(f'{channel.mention} はすでに設定されているぞ!', ephemeral=True)
             
     @auto_setting.error
     async def auto_setting_error(self, interaction, error):
