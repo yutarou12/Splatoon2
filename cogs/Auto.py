@@ -48,7 +48,7 @@ class Auto(commands.Cog):
         except Exception:
             return None
 
-    def create_msg(self, ch_data: dict, data: list, embed: discord.Embed) -> discord.Embed:
+    def create_msg(self, ch_data: dict, data: list) -> discord.Embed:
         images = list()
         coop_image = list()
         battle_rule_icon = {'ガチヤグラ': '<:battle_gachi_yagura:1054661034268430408>',
@@ -57,6 +57,14 @@ class Auto(commands.Cog):
                             'ガチアサリ': '<:battle_gachi_asari:1054661030564876378>'}
 
         base_stage, coop, fest = data
+
+        s_t = self.utils.convert_time(str(base_stage['regular']['start_time']).split('+')[0])
+        e_t = self.utils.convert_time(str(base_stage['regular']['end_time']).split('+')[0])
+
+        description = f'**{s_t} ～ {e_t}**\nㅤ'
+        embed = discord.Embed(description=description, color=discord.Colour.yellow())
+        embed.set_author(name='Splatoon3 ステージ情報',
+                         icon_url='https://www.nintendo.co.jp/switch/av5ja/assets/images/common/menu/pc/ika.png')
 
         def msg_regular(all_data):
             info = all_data.get('regular')
@@ -150,16 +158,7 @@ class Auto(commands.Cog):
 
         next_stage = self.convert.get_stage_all()
         coop_stage = self.convert.get_stage_3('coop-grouping')
-        s_info_1 = next_stage['regular']
         fest_stage = self.convert.get_fest_3(True)
-
-        s_t = self.utils.convert_time(str(s_info_1['start_time']).split('+')[0])
-        e_t = self.utils.convert_time(str(s_info_1['end_time']).split('+')[0])
-
-        description = f'**{s_t} ～ {e_t}**\nㅤ'
-        embed = discord.Embed(description=description, color=discord.Colour.yellow())
-        embed.set_author(name='Splatoon3 ステージ情報',
-                         icon_url='https://www.nintendo.co.jp/switch/av5ja/assets/images/common/menu/pc/ika.png')
 
         next_time = datetime.datetime.strptime(coop_stage["end_time"].split('+')[0], '%Y-%m-%dT%H:%M:%S')
         now_time = datetime.datetime.now(pytz.timezone('Asia/Tokyo'))
