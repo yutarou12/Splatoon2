@@ -210,26 +210,29 @@ class Auto(commands.Cog):
 
         webhook = await channel.create_webhook(name='スプラトゥーンステージ情報Bot', avatar=(await self.bot.user.avatar.read()))
         webhook_url = f'https://discord.com/api/webhooks/{webhook.id}/{webhook.token}'
+
         set_data = self.bot.db.set_stage_automatic(channel.id, webhook_url)
-        if not set_data:
-            return await interaction.response.send_message('既に設定されています。', ephemeral=True)
-
-        self.webhook_list[channel.id] = webhook_url
-        self.bot.db.premium_new_data(interaction.guild_id, interaction.channel_id)
-        return await interaction.response.send_message('自動送信の設定が完了しました！', ephemeral=True)
-
+        if set_data:
+            self.webhook_list[channel.id] = webhook_url
+            self.bot.db.premium_new_data(interaction.guild_id, interaction.channel_id)
+            return await interaction.response.send_message('自動送信の設定が出来たぞ!', ephemeral=True)
+        else:
+            await webhook.delete()
+            return await interaction.response.send_message('エラーが発生してしまった。もう一度試してみてくれ!', ephemeral=True)
+            
     @auto_setting.error
     async def auto_setting_error(self, interaction, error):
         if isinstance(error, app_commands.MissingPermissions):
             return await interaction.response.send_message(
-                content=f'このコマンドを実行するには {error.missing_permissions[0]} の権限が必要です。', ephemeral=True)
+                content=f'このコマンドを実行するには {error.missing_permissions[0]} の権限が必要みたいだ。', ephemeral=True)
         else:
             raise error
 
     @app_commands.command(name='auto-del')
     @app_commands.checks.has_permissions(administrator=True)
     async def auto_delete(self, interaction: discord.Interaction, ch: discord.abc.GuildChannel = None):
-        """ステージ情報の定期送信の設定を削除します"""
+        """ステージ情報の定期送信の設定を削除するぞ!"""
+
         if not self.webhook_list:
             await self.setup()
         channel = ch if ch else interaction.channel
@@ -244,13 +247,13 @@ class Auto(commands.Cog):
             webhook = discord.utils.get(webhooks, name='スプラトゥーンステージ情報Bot')
             if webhook:
                 await webhook.delete()
-            return await interaction.response.send_message('設定を削除しました。', ephemeral=True)
+            return await interaction.response.send_message('設定を削除したぞ!', ephemeral=True)
 
     @auto_delete.error
     async def auto_delete_error(self, interaction, error):
         if isinstance(error, app_commands.MissingPermissions):
             return await interaction.response.send_message(
-                content=f'このコマンドを実行するには {error.missing_permissions[0]} の権限が必要です。', ephemeral=True)
+                content=f'このコマンドを実行するには {error.missing_permissions[0]} の権限が必要みたいだ。', ephemeral=True)
         else:
             raise error
 

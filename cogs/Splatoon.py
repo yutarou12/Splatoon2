@@ -13,8 +13,6 @@ from discord.ext import commands
 import discord
 
 from libs import Page
-from libs.Convert import is_owner
-from libs.Error import NotOwner
 
 
 class Splatoon(commands.Cog):
@@ -101,19 +99,6 @@ class Splatoon(commands.Cog):
 
         return de_msg
 
-    @app_commands.command(name='sync')
-    @is_owner()
-    async def slash_sync(self, interaction):
-        await self.bot.tree.sync()
-        return await interaction.response.send_message('Synced', ephemeral=True)
-
-    @slash_sync.error
-    async def slash_sync_error(self, interaction, error):
-        if isinstance(error, NotOwner):
-            return await interaction.response.send_message('You are not bot owner', ephemeral=True)
-        else:
-            raise error
-
     @app_commands.command(name='stage')
     @app_commands.describe(s_type='ステージ情報を選択してください', s_next_text='時間帯')
     @app_commands.choices(s_type=[Choice(name='レギュラー', value='regular'), Choice(name='ガチ', value='gachi'),
@@ -121,7 +106,7 @@ class Splatoon(commands.Cog):
                           s_next_text=[Choice(name='今', value='今'), Choice(name='次', value='次')])
     @app_commands.rename(s_type='ルール', s_next_text='時間帯')
     async def slash_stage(self, interaction, s_type: Choice[str], s_next_text: Choice[str] = '今'):
-        """Splatoon2のステージ情報を表示するコマンド"""
+        """Splatoon2のステージ情報を表示するぞ!"""
         battle_1 = 'https://www.nintendo.co.jp/switch/aab6a/assets/images/battle-sec01_logo.png'
         battle_2 = 'https://www.nintendo.co.jp/switch/aab6a/assets/images/battle-sec02_logo.png'
         battle_3 = 'https://www.nintendo.co.jp/switch/aab6a/assets/images/battle-sec03_logo.png'
@@ -155,7 +140,7 @@ class Splatoon(commands.Cog):
                           s_next_text=[Choice(name='今', value='今'), Choice(name='次', value='次')])
     @app_commands.rename(s_type='ルール', s_next_text='時間帯')
     async def slash_stage3(self, interaction, s_type: Choice[str], s_next_text: Choice[str] = '今'):
-        """Splatoon3のステージ情報を表示するコマンド"""
+        """Splatoon3のステージ情報を表示するぞ!"""
         battle_1 = 'https://www.nintendo.co.jp/switch/aab6a/assets/images/battle-sec01_logo.png'
         battle_2 = 'https://www.nintendo.co.jp/switch/aab6a/assets/images/battle-sec02_logo.png'
         x_match_icon = 'https://splatoon.syutarou.xyz/images/x_match.png'
@@ -231,7 +216,18 @@ class Splatoon(commands.Cog):
             weapon_list_jp = [(i['name']['ja_JP'], i['key']) for i in weapon]
 
         weapons = random.sample(weapon_list_jp, 6)
-        weapon_files = [discord.File(f'./images/weapons/{version}/{f[1]}.png', filename='image.png') for f in weapons]
+        base_path = f'./images/weapons/{version}'
+        weapon_files = list()
+        for f in weapons:
+            if not os.path.exists(f'{base_path}/{f[1]}.png'):
+                new_weapon = random.choice(weapon_list_jp)
+                if os.path.exists(f'{base_path}/{new_weapon[1]}.png'):
+                    weapon_files.append(discord.File(f'{base_path}/{new_weapon[1]}.png', filename='image.png'))
+                else:
+                    pass
+            else:
+                weapon_files.append(
+                    discord.File(f'{base_path}/{f[1]}.png', filename='image.png'))
 
         embed = discord.Embed(title='ブキガチャ',
                               description='今の君におススメなのは...')
@@ -244,9 +240,16 @@ class Splatoon(commands.Cog):
             await interaction.edit_original_response(embed=embed, attachments=[weapon_files[i]])
             await asyncio.sleep(1)
 
-        ch_weapon_name, ch_weapon_id = random.choice(weapon_list_jp)
+        ch_weapon_name, ch_weapon_id = (None, None)
+        while True:
+            w_name, w_id = random.choice(weapon_list_jp)
+            if os.path.exists(f'{base_path}/{w_id}.png'):
+                ch_weapon_name, ch_weapon_id = w_name, w_id
+                break
+            else:
+                continue
 
-        file = discord.File(f'./images/weapons/{version}/{ch_weapon_id}.png', filename='image.png')
+        file = discord.File(f'{base_path}/{ch_weapon_id}.png', filename='image.png')
 
         if version == 'v2':
             embed = discord.Embed(title='ブキガチャ 結果',
@@ -263,7 +266,7 @@ class Splatoon(commands.Cog):
     @app_commands.command(name='weapon')
     @app_commands.checks.cooldown(1, 60*60*2)
     async def slash_weapon(self, interaction):
-        """ブキガチャコマンド"""
+        """ブキチ君がブキを選んでくれるぞ!(Splatoon2)"""
         await self.weapon_lottery(interaction, 'v2')
 
     @slash_weapon.error
@@ -276,7 +279,7 @@ class Splatoon(commands.Cog):
     @app_commands.command(name='weapon3')
     @app_commands.checks.cooldown(1, 60 * 60 * 2)
     async def slash_weapon3(self, interaction):
-        """ブキガチャコマンド"""
+        """ブキチ君がブキを選んでくれるぞ!"""
         await self.weapon_lottery(interaction, 'v3')
 
     @slash_weapon3.error
@@ -288,7 +291,7 @@ class Splatoon(commands.Cog):
 
     @app_commands.command(name='list')
     async def stage_list(self, ctx):
-        """スプラトゥーンステージ情報の一覧を表示するコマンド"""
+        """スプラトゥーン2ステージ情報の一覧を見れるぞ!"""
         await ctx.response.defer(ephemeral=True)
         stage_color = {'レギュラー': 261888, 'ガチ': 14840346, 'リーグ': 15409787, 'サーモンラン': 15442812}
         r_stage_info = self.convert.get_stage('regular', stage_all=True)
@@ -365,15 +368,15 @@ class Splatoon(commands.Cog):
         await paginator.respond(ctx, ephemeral=True)
 
     @app_commands.command(name='friend')
-    @app_commands.describe(user='ユーザーを選択してください。')
+    @app_commands.describe(user='ユーザーを選択するみたいだ。')
     @app_commands.rename(user='ユーザー')
     async def friends_slash(self, interaction: discord.Interaction, user: Optional[discord.Member]):
-        """フレンドコードを表示/検索するコマンド"""
+        """フレンドコードを表示/検索することができるぞ!"""
         if not user:
             user_data = self.bot.db.friend_code_get(interaction.user.id)
             if not user_data:
                 return await interaction.response.send_message(
-                    'フレンドコードが登録されていません!\n`/friend-setting set フレンドコード` で登録できます。', ephemeral=True)
+                    'フレンドコードが登録されてないみたいだ!\n`/friend-setting set フレンドコード` で登録できるぞ!', ephemeral=True)
             if user_data[0][2] == 0:
                 return await interaction.response.send_message(f'{interaction.user} のフレンドコード\n> {user_data[0][1]}')
             else:
@@ -384,13 +387,13 @@ class Splatoon(commands.Cog):
             user_data = self.bot.db.friend_code_get(user.id)
             if not user_data:
                 return await interaction.response.send_message(
-                    f'{user} はフレンドコードを登録していないみたいです!', ephemeral=True)
+                    f'{user} はフレンドコードを登録していないみたいだ!', ephemeral=True)
             if user_data[0][2] == 0:
                 return await interaction.response.send_message(
                     f'{interaction.user} のフレンドコード\n> {user_data[0][1]}', ephemeral=True)
             else:
                 return await interaction.response.send_message(
-                    f'{user} はフレンドコードを非公開設定にしているみたいです!', ephemeral=True)
+                    f'{user} はフレンドコードを非公開設定にしているみたいだ!', ephemeral=True)
 
     @app_commands.guild_only()
     class MyGroup(app_commands.Group):
@@ -401,7 +404,7 @@ class Splatoon(commands.Cog):
     @friend_group.command(name='登録')
     @app_commands.rename(arg='フレンドコード')
     async def friends_set_slash(self, interaction: discord.Interaction, arg: str):
-        """フレンドコードを登録します
+        """フレンドコードを登録するぞ!
         
         Parameters
         -----------
@@ -409,56 +412,56 @@ class Splatoon(commands.Cog):
         :param arg: フレンドコード
         """
         if not arg:
-            return await interaction.response.send_message('フレンドコードを入力してください!\n例: `SW-1234-5678-9012`',
+            return await interaction.response.send_message('フレンドコードを入力してくれ!\n例: `SW-1234-5678-9012`',
                                                            ephemeral=True)
 
         match_arg = re.match(r'[a-zA-Z]{2}-\d{4}-\d{4}-\d{4}', arg)
         if not match_arg:
-            return await interaction.response.send_message('フレンドコードを正しく入力してください!\n例: `SW-1234-5678-9012`',
+            return await interaction.response.send_message('フレンドコードを正しく入力してくれ!\n例: `SW-1234-5678-9012`',
                                                            ephemeral=True)
 
         user_data = self.bot.db.friend_code_get(interaction.user.id)
         if user_data:
-            return await interaction.response.send_message('フレンドコードが既に登録されています。', ephemeral=True)
+            return await interaction.response.send_message('フレンドコードが既に登録されているみたいだ。', ephemeral=True)
         else:
             self.bot.db.friend_code_set(interaction.user.id, arg, 1)
-            return await interaction.response.send_message(f'フレンドコードを `{arg}` で登録しました!', ephemeral=True)
+            return await interaction.response.send_message(f'フレンドコードを `{arg}` で登録したぞ!', ephemeral=True)
 
     @friend_group.command(name='削除')
     async def friends_del_slash(self, interaction: discord.Interaction):
-        """フレンドコードの設定を削除します"""
+        """フレンドコードの設定を削除するぞ!"""
 
         user_data = self.bot.db.friend_code_get(interaction.user.id)
         if not user_data:
             return await interaction.response.send_message(
-                'フレンドコードは登録されていません!\n`/friend-setting set フレンドコード` で登録できます。', ephemeral=True)
+                'フレンドコードは登録されていないみたいだ!\n`/friend-setting set フレンドコード` で登録できるぞ!', ephemeral=True)
 
         res = self.bot.db.friend_code_del(interaction.user.id)
         if res:
-            return await interaction.response.send_message('フレンドコードの設定を削除しました!', ephemeral=True)
+            return await interaction.response.send_message('フレンドコードの設定を削除したぞ!', ephemeral=True)
         else:
-            return await interaction.response.send_message('削除に失敗しました', ephemeral=True)
+            return await interaction.response.send_message('削除に失敗してしまったようだ。', ephemeral=True)
 
     @friend_group.command(name='公開非公開')
     async def friends_public_slash(self, interaction: discord.Interaction):
-        """フレンドコードの公開範囲の設定をします"""
+        """フレンドコードの公開範囲の設定をするぞ!"""
 
         user_data = self.bot.db.friend_code_get(interaction.user.id)
         if not user_data:
             return await interaction.response.send_message(
-                'フレンドコードは登録されていません!\n`/friend-setting set フレンドコード` で登録できます。', ephemeral=True)
+                'フレンドコードは登録されていないみたいだ!\n`/friend-setting set フレンドコード` で登録できるぞ!', ephemeral=True)
 
         if user_data[0][2] == 0:
             res = self.bot.db.friend_code_public(interaction.user.id, 1)
             if res:
                 return await interaction.response.send_message(
-                    'フレンドコードを非公開設定にしました。\n他のユーザーからは検索できず、`/friend`は非表示メッセージで送信されます。',
+                    'フレンドコードを非公開設定にしたぞ!\n他のユーザーからは検索できず、`/friend`は非表示メッセージで送信されるぞ!',
                     ephemeral=True)
         elif user_data[0][2] == 1:
             res = self.bot.db.friend_code_public(interaction.user.id, 0)
             if res:
                 return await interaction.response.send_message(
-                    'フレンドコードを公開設定にしました。\n他のユーザーは検索が可能になり、`/friend`は通常メッセージで送信されます。',
+                    'フレンドコードを公開設定にしたぞ!\n他のユーザーは検索が可能になり、`/friend`は通常メッセージで送信されるぞ!',
                     ephemeral=True)
         else:
             return None
