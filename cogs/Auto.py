@@ -195,21 +195,23 @@ class Auto(commands.Cog):
 
     @app_commands.command(name='auto-set')
     @app_commands.checks.has_permissions(administrator=True)
-    async def auto_setting(self, interaction: discord.Interaction):
+    async def auto_setting(self, interaction: discord.Interaction, ch: discord.abc.GuildChannel = None):
         """ステージ情報の定期送信の設定を行います"""
         if not self.webhook_list:
             await self.setup()
 
-        if isinstance(interaction.channel, (discord.VoiceChannel, discord.CategoryChannel, discord.ForumChannel, discord.StageChannel, discord.Thread)):
+        channel = ch if ch else interaction.channel
+
+        if isinstance(channel, (discord.VoiceChannel, discord.CategoryChannel, discord.ForumChannel, discord.StageChannel, discord.Thread)):
             return await interaction.response.send_message('テキストチャンネルで実行してください。', ephemeral=True)
 
-        webhook = await interaction.channel.create_webhook(name='スプラトゥーンステージ情報Bot', avatar=(await self.bot.user.avatar.read()))
+        webhook = await channel.create_webhook(name='スプラトゥーンステージ情報Bot', avatar=(await self.bot.user.avatar.read()))
         webhook_url = f'https://discord.com/api/webhooks/{webhook.id}/{webhook.token}'
-        set_data = self.bot.db.set_stage_automatic(interaction.channel.id, webhook_url)
+        set_data = self.bot.db.set_stage_automatic(channel.id, webhook_url)
         if not set_data:
             return await interaction.response.send_message('既に設定されています。', ephemeral=True)
 
-        self.webhook_list[interaction.channel.id] = webhook_url
+        self.webhook_list[channel.id] = webhook_url
 
         return await interaction.response.send_message('自動送信の設定が完了しました！', ephemeral=True)
 
@@ -223,18 +225,18 @@ class Auto(commands.Cog):
 
     @app_commands.command(name='auto-del')
     @app_commands.checks.has_permissions(administrator=True)
-    async def auto_delete(self, interaction: discord.Interaction):
+    async def auto_delete(self, interaction: discord.Interaction, ch: discord.abc.GuildChannel = None):
         """ステージ情報の定期送信の設定を削除します"""
         if not self.webhook_list:
             await self.setup()
-
-        data = self.bot.db.get_stage_automatic(interaction.channel.id)
+        channel = ch if ch else interaction.channel
+        data = self.bot.db.get_stage_automatic(channel.id)
 
         if not data:
-            return await interaction.response.send_message('このチャンネルには設定されていません。', ephemeral=True)
+            return await interaction.response.send_message(f'{channel.mention} には設定されていません。', ephemeral=True)
         else:
-            self.bot.db.del_stage_automatic(interaction.channel.id)
-            self.webhook_list.pop(interaction.channel.id)
+            self.bot.db.del_stage_automatic(channel.id)
+            self.webhook_list.pop(channel.id)
             webhooks = await interaction.channel.webhooks()
             webhook = discord.utils.get(webhooks, name='スプラトゥーンステージ情報Bot')
             if webhook:
