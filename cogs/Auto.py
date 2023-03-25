@@ -201,6 +201,10 @@ class Auto(commands.Cog):
             await self.setup()
 
         channel = ch if ch else interaction.channel
+        data = self.bot.db.premium_data_get(interaction.guild_id, channel.id)
+
+        if len(data) == 2:
+            return await interaction.response.send_message('設定できるチャンネルの上限に達しています。', ephemeral=True)
 
         if isinstance(channel, (discord.VoiceChannel, discord.CategoryChannel, discord.ForumChannel, discord.StageChannel, discord.Thread)):
             return await interaction.response.send_message('テキストチャンネルで実行してください。', ephemeral=True)
