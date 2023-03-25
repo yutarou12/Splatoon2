@@ -216,7 +216,7 @@ class Auto(commands.Cog):
             return await interaction.response.send_message('既に設定されています。', ephemeral=True)
 
         self.webhook_list[channel.id] = webhook_url
-
+        self.bot.db.premium_new_data(interaction.guild_id, interaction.channel_id)
         return await interaction.response.send_message('自動送信の設定が完了しました！', ephemeral=True)
 
     @auto_setting.error
