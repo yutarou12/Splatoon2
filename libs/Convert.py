@@ -56,7 +56,7 @@ class Convert:
         regular = data['regular'][1]
         bankara_challenge = data['bankara_challenge'][1]
         bankara_open = data['bankara_open'][1]
-        x = data['x'][1]
+        x = data['x'][1] if data.get('x') else None
         result_data = {'regular': regular, 'bankara_challenge': bankara_challenge, 'bankara_open': bankara_open, 'x': x}
         return result_data
 
