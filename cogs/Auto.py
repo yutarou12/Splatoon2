@@ -6,7 +6,6 @@ import pytz
 import aiohttp
 import json
 import datetime
-import time
 import random
 
 import discord
@@ -19,6 +18,7 @@ class Auto(commands.Cog):
         self.bot = bot
         self.session = None
         self.webhook_list = {}
+        self.premium_ch_list = list()
         self.convert = bot.convert
         self.utils = bot.utils
         self.scheduler_loop.start()
@@ -26,6 +26,7 @@ class Auto(commands.Cog):
     async def setup(self):
         await self.bot.wait_until_ready()
         self.webhook_list = self.bot.db.get_webhook_list()
+        self.premium_ch_list = self.bot.db.get_premium_list()
 
     async def send_msg(self, embed, channel):
         self.session = self.session or aiohttp.ClientSession()
@@ -46,96 +47,132 @@ class Auto(commands.Cog):
         except Exception:
             return None
 
-    async def auto_sending(self):
-        if not self.webhook_list:
-            await self.setup()
+    def create_msg(self, ch_data: dict, data: list) -> discord.Embed:
+        images = list()
+        coop_image = list()
+        battle_rule_icon = {'ガチヤグラ': '<:battle_gachi_yagura:1054661034268430408>',
+                            'ガチエリア': '<:battle_gachi_area:1054661035933573160>',
+                            'ガチホコバトル': '<:battle_gachi_hoko:1054661033026932817>',
+                            'ガチアサリ': '<:battle_gachi_asari:1054661030564876378>'}
 
-        next_stage = self.convert.get_stage_all()
-        s_info_1 = next_stage['regular']
-        s_info_2 = next_stage['bankara_challenge']
-        s_info_3 = next_stage['bankara_open']
-        s_info_4 = self.convert.get_stage_3('coop-grouping')
+        base_stage, coop, fest = data
 
-        s_info_5 = self.convert.get_fest_3(True)
-
-        s_t = self.utils.convert_time(str(s_info_1['start_time']).split('+')[0])
-        e_t = self.utils.convert_time(str(s_info_1['end_time']).split('+')[0])
+        s_t = self.utils.convert_time(str(base_stage['regular']['start_time']).split('+')[0])
+        e_t = self.utils.convert_time(str(base_stage['regular']['end_time']).split('+')[0])
 
         description = f'**{s_t} ～ {e_t}**\nㅤ'
-        images = []
-        battle_rule_icon = {'ガチヤグラ': '<:battle_gachi_yagura:1054661034268430408>', 'ガチエリア': '<:battle_gachi_area:1054661035933573160>', 'ガチホコバトル': '<:battle_gachi_hoko:1054661033026932817>', 'ガチアサリ': '<:battle_gachi_asari:1054661030564876378>'}
         embed = discord.Embed(description=description, color=discord.Colour.yellow())
         embed.set_author(name='Splatoon3 ステージ情報',
                          icon_url='https://www.nintendo.co.jp/switch/av5ja/assets/images/common/menu/pc/ika.png')
 
-        if not s_info_1['is_fest']:
-            # レギュラー
-            stage = f'・{s_info_1["stages"][0]["name"]}\n・{s_info_1["stages"][1]["name"]}'
-            for n in [s_info_1["stages"][0]["image"], s_info_1["stages"][1]["image"]]:
+        def msg_regular(all_data):
+            info = all_data.get('regular')
+            stage = f'・{info["stages"][0]["name"]}\n・{info["stages"][1]["name"]}'
+            for n in [info["stages"][0]["image"], info["stages"][1]["image"]]:
                 images.append(n)
             embed.add_field(name=f'<:battle_regular:1054319052509687908> **レギュラーマッチ**',
                             value=f'```\n{stage}\n```',
                             inline=False)
-            # description += f'**レギュラーマッチ**\n```\n{stage}\n```\n'
 
-            # バンカラ(チャレンジ)
-            stage_2 = f'・{s_info_2["stages"][0]["name"]}\n・{s_info_2["stages"][1]["name"]}'
-            for n in [s_info_2["stages"][0]["image"], s_info_2["stages"][1]["image"]]:
+        def msg_bankara_c(all_data):
+            info = all_data.get('bankara_challenge')
+            stage = f'・{info["stages"][0]["name"]}\n・{info["stages"][1]["name"]}'
+            for n in [info["stages"][0]["image"], info["stages"][1]["image"]]:
                 images.append(n)
             embed.add_field(name=f'<:battle_gachi:1054319050865512509> **バンカラマッチ (チャレンジ)**',
-                            value=f'【ルール】**{s_info_2["rule"]["name"]}** {battle_rule_icon[s_info_2["rule"]["name"]]}'
-                                  f'\n```\n{stage_2}\n```',
+                            value=f'【ルール】**{info["rule"]["name"]}** {battle_rule_icon[info["rule"]["name"]]}'
+                                  f'\n```\n{stage}\n```',
                             inline=False)
-            # description += f'**バンカラマッチ (チャレンジ)**\n```\n{stage_2}\n```\n'
 
-            # バンカラ(オープン)
-            stage_3 = f'・{s_info_3["stages"][0]["name"]}\n・{s_info_3["stages"][1]["name"]}'
-            for n in [s_info_3["stages"][0]["image"], s_info_3["stages"][1]["image"]]:
+        def msg_bankara_o(all_data):
+            info = all_data.get('bankara_open')
+            stage = f'・{info["stages"][0]["name"]}\n・{info["stages"][1]["name"]}'
+            for n in [info["stages"][0]["image"], info["stages"][1]["image"]]:
                 images.append(n)
             embed.add_field(name=f'<:battle_gachi:1054319050865512509> **バンカラマッチ (オープン)**',
-                            value=f'【ルール】**{s_info_3["rule"]["name"]}** {battle_rule_icon[s_info_3["rule"]["name"]]}'
-                                  f'\n```\n{stage_3}\n```',
+                            value=f'【ルール】**{info["rule"]["name"]}** {battle_rule_icon[info["rule"]["name"]]}'
+                                  f'\n```\n{stage}\n```',
                             inline=False)
-            # description += f'**バンカラマッチ (オープン)** - {s_info_3["rule"]["name"]}\n```\n{stage_3}\n```\n'
 
-            embed.set_image(url=random.choice(images))
+        def msg_x(all_data):
+            info = all_data.get('x')
+            stage = f'・{info["stages"][0]["name"]}\n・{info["stages"][1]["name"]}'
+            for n in [info["stages"][0]["image"], info["stages"][1]["image"]]:
+                images.append(n)
+            embed.add_field(name=f'<:battle_x:1053456480575172718> **Xマッチ**',
+                            value=f'【ルール】**{info["rule"]["name"]}** {battle_rule_icon[info["rule"]["name"]]}'
+                                  f'\n```\n{stage}\n```',
+                            inline=False)
+
+        def msg_coop(all_data):
+            info = all_data
+            stage = f'{info["stage"]["name"]}' if info["stage"] else "未発表"
+            coop_image.append(info["stage"]["image"])
+            weapons = ''
+            if info['weapons']:
+                for we in info['weapons']:
+                    weapons += f'・{we["name"]}\n'
+            else:
+                weapons = '未発表'
+
+            embed.add_field(
+                name=f'<:battle_salmonrun:1054319424888381444> **{"⚠ ビックラン ⚠" if info["is_big_run"] else "サーモンラン "}**',
+                value=f'【ステージ】 {stage}\n【支給ブキ】\n```\n{weapons}```',
+                inline=False)
+
+        if not base_stage['regular'].get('is_fest'):
+            if ch_data.get('レギュラー'):
+                msg_regular(base_stage)
+            if ch_data.get('バンカラC'):
+                msg_bankara_c(base_stage)
+            if ch_data.get('バンカラO'):
+                msg_bankara_o(base_stage)
+            if ch_data.get('x'):
+                msg_x(base_stage)
         else:
-            stage_5 = f'・{s_info_5["stages"][0]["name"]}\n・{s_info_5["stages"][1]["name"]}'
-            for n in [s_info_5["stages"][0]["image"], s_info_5["stages"][1]["image"]]:
+            stage_5 = f'・{fest["stages"][0]["name"]}\n・{fest["stages"][1]["name"]}'
+            for n in [fest["stages"][0]["image"], fest["stages"][1]["image"]]:
                 images.append(n)
 
             embed.add_field(name='**フェスマッチ**',
                             value=f'```\n{stage_5}\n```',
                             inline=False)
-            if s_info_5['is_tricolor']:
-                stage_tricolor = f'・{s_info_5["tricolor_stage"]["name"]}'
+            if fest['is_tricolor']:
+                stage_tricolor = f'・{fest["tricolor_stage"]["name"]}'
                 embed.add_field(name='トリカラバトル',
                                 value=f'```\n{stage_tricolor}\n```')
-            embed.set_image(url=random.choice(images))
 
-        next_time = datetime.datetime.strptime(s_info_4["end_time"].split('+')[0], '%Y-%m-%dT%H:%M:%S')
+        if ch_data.get('サーモン'):
+            msg_coop(coop)
+        if images:
+            embed.set_image(url=random.choice(images))
+        else:
+            if ch_data.get('サーモン'):
+                embed.set_image(url=coop_image[0])
+
+        return embed
+
+    async def auto_sending(self):
+        await self.setup()
+
+        next_stage = self.convert.get_stage_all()
+        coop_stage = self.convert.get_stage_3('coop-grouping')
+        fest_stage = self.convert.get_fest_3(True)
+
+        next_time = datetime.datetime.strptime(coop_stage["end_time"].split('+')[0], '%Y-%m-%dT%H:%M:%S')
         now_time = datetime.datetime.now(pytz.timezone('Asia/Tokyo'))
         if now_time.day == next_time.day and (now_time.hour+1) == next_time.hour:
             coop_info_4 = self.convert.get_stage_3('coop-grouping', True)
         else:
-            coop_info_4 = s_info_4
+            coop_info_4 = coop_stage
 
-        stage4 = f'{coop_info_4["stage"]["name"]}' if coop_info_4["stage"] else "未発表"
-        weapons = ''
-        if coop_info_4['weapons']:
-            for we in coop_info_4['weapons']:
-                weapons += f'・{we["name"]}\n'
-        else:
-            weapons = '未発表'
-
-        de_msg = f'【ステージ】 {stage4}\n【支給ブキ】\n```\n{weapons}```'
-        embed.add_field(name=f'<:battle_salmonrun:1054319424888381444> **{ "⚠ ビックラン ⚠" if coop_info_4["is_big_run"] else "サーモンラン "}**',
-                        value=de_msg,
-                        inline=False)
+        all_data = [next_stage, coop_info_4, fest_stage]
 
         tasks = []
         for channel in self.webhook_list.keys():
-            tasks.append(self.send_msg(embed, channel))
+            data = self.bot.db.get_premium_data(channel)
+            embed_data = self.create_msg(ch_data=data, data=all_data)
+            tasks.append(self.send_msg(embed_data, channel))
 
         logs = await asyncio.gather(*tasks)
 
@@ -156,28 +193,35 @@ class Auto(commands.Cog):
 
     @app_commands.command(name='auto-set')
     @app_commands.checks.has_permissions(administrator=True)
-    async def auto_setting(self, interaction: discord.Interaction):
-        """ステージ情報の定期送信の設定をするぞ!"""
+    async def auto_setting(self, interaction: discord.Interaction, ch: discord.abc.GuildChannel = None):
+        """ステージ情報の定期送信の設定を行います"""
         if not self.webhook_list:
             await self.setup()
 
-        if isinstance(interaction.channel, (discord.VoiceChannel, discord.CategoryChannel, discord.ForumChannel, discord.StageChannel, discord.Thread)):
-            return await interaction.response.send_message('テキストチャンネルで実行せよ!', ephemeral=True)
+        await interaction.response.defer(ephemeral=True)
 
-        data = self.bot.db.get_stage_automatic(interaction.channel.id)
-        if data:
-            return await interaction.response.send_message('おっと・・・既に設定されているみたいだ。', ephemeral=True)
+        channel = ch if ch else interaction.channel
+        data = self.bot.db.premium_data_get(interaction.guild_id, channel.id)
 
-        webhook = await interaction.channel.create_webhook(name='スプラトゥーンステージ情報Bot', avatar=(await self.bot.user.avatar.read()))
+        if len(data) == 2:
+            return await interaction.followup.send('設定できるチャンネルの上限に達しています。', ephemeral=True)
+
+        if isinstance(channel, (discord.VoiceChannel, discord.CategoryChannel, discord.ForumChannel, discord.StageChannel, discord.Thread)):
+            return await interaction.followup.send('テキストチャンネルで実行してください。', ephemeral=True)
+
+        if self.bot.db.get_stage_automatic(channel.id):
+            return await interaction.followup.send(f'{channel.mention} はすでに設定されています。', ephemeral=True)
+
+        webhook = await channel.create_webhook(name='スプラトゥーンステージ情報Bot', avatar=(await self.bot.user.avatar.read()))
         webhook_url = f'https://discord.com/api/webhooks/{webhook.id}/{webhook.token}'
-        set_data = self.bot.db.set_stage_automatic(interaction.channel.id, webhook_url)
-        if set_data:
-            self.webhook_list[interaction.channel.id] = webhook_url
-            return await interaction.response.send_message('自動送信の設定が出来たぞ!', ephemeral=True)
-        else:
-            await webhook.delete()
-            return await interaction.response.send_message('エラーが発生してしまった。もう一度試してみてくれ!', ephemeral=True)
 
+        set_data = self.bot.db.set_stage_automatic(channel.id, webhook_url)
+        if set_data:
+            self.webhook_list[channel.id] = webhook_url
+            self.bot.db.premium_new_data(interaction.guild_id, channel.id)
+            return await interaction.followup.send('自動送信の設定が出来ました。', ephemeral=True)
+
+            
     @auto_setting.error
     async def auto_setting_error(self, interaction, error):
         if isinstance(error, app_commands.MissingPermissions):
@@ -188,18 +232,20 @@ class Auto(commands.Cog):
 
     @app_commands.command(name='auto-del')
     @app_commands.checks.has_permissions(administrator=True)
-    async def auto_delete(self, interaction: discord.Interaction):
+    async def auto_delete(self, interaction: discord.Interaction, ch: discord.abc.GuildChannel = None):
         """ステージ情報の定期送信の設定を削除するぞ!"""
+
         if not self.webhook_list:
             await self.setup()
-
-        data = self.bot.db.get_stage_automatic(interaction.channel.id)
+        channel = ch if ch else interaction.channel
+        data = self.bot.db.get_stage_automatic(channel.id)
 
         if not data:
-            return await interaction.response.send_message('このチャンネルには設定されていないみたいだ。', ephemeral=True)
+            return await interaction.response.send_message(f'{channel.mention} には設定されていません。', ephemeral=True)
         else:
-            self.bot.db.del_stage_automatic(interaction.channel.id)
-            self.webhook_list.pop(interaction.channel.id)
+            self.bot.db.del_stage_automatic(channel.id)
+            self.bot.db.del_premium_data(channel.id)
+            self.webhook_list.pop(channel.id)
             webhooks = await interaction.channel.webhooks()
             webhook = discord.utils.get(webhooks, name='スプラトゥーンステージ情報Bot')
             if webhook:
