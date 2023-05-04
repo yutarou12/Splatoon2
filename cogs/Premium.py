@@ -25,7 +25,6 @@ class Premium(commands.Cog):
                     select.add_option(label='チャンネル未設定', value='None')
         elif data_len == 2:
             select.add_option(label='チャンネル未設定', value='None')
-            select.add_option(label='チャンネル未設定', value='None')
         else:
             for d in data:
                 ch = interaction.guild.get_channel(d.get("channel_id"))
