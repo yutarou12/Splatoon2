@@ -91,14 +91,9 @@ class MyBot(commands.Bot):
         return await super().get_context(message, *args, **kwargs)
 
 
-intents = discord.Intents.default()
-intents.guilds = True
-intents.members = True
-intents.message_content = True
-
 bot = MyBot(
     command_prefix=commands.when_mentioned_or(config['prefix']),
-    intents=intents,
+    intents=discord.Intents.default(),
     allowed_mentions=discord.AllowedMentions(replied_user=False, everyone=False),
     help_command=None
 )
