@@ -1,6 +1,8 @@
 import datetime
 import pytz
 import math
+from typing import Optional
+from discord import Asset
 
 
 class Utils:
@@ -19,3 +21,10 @@ class Utils:
         date_dt_tokyo = date_dt.replace(tzinfo=datetime.timezone.utc)
         diff = (date_dt_tokyo - cmd_time_tokyo).seconds / 60
         return str(math.floor(diff))
+
+
+def icon_convert(icon: Optional[Asset]) -> str:
+    if not icon:
+        return 'https://cdn.discordapp.com/embed/avatars/0.png'
+    else:
+        return icon.replace(format='png').url
