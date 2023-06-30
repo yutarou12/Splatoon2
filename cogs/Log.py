@@ -15,7 +15,7 @@ from libs.Utils import icon_convert
 
 class Log(commands.Cog):
 
-    def __int__(self, bot):
+    def __init__(self, bot):
         self.bot = bot
 
     async def on_app_command_error(self, interaction: Interaction, error: AppCommandError):
