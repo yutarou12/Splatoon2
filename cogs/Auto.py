@@ -156,6 +156,8 @@ class Auto(commands.Cog):
         await self.setup()
 
         next_stage = self.convert.get_stage_all()
+        if next_stage is None:
+            return None
         coop_stage = self.convert.get_stage_3('coop-grouping')
         fest_stage = self.convert.get_fest_3(True)
 

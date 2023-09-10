@@ -32,18 +32,18 @@ class Convert:
         else:
             return res.json()
 
-    def get_api_3(self, url: str, result_name='results') -> dict:
+    def get_api_3(self, url: str, result_name='results') -> Optional[dict|None] :
         """
         Get the API data.
         :param url: API URL
         :param result_name: result name
-        :return: dict
+        :return: dict | None
         """
 
         headers = {'User-Agent': 'DiscordBot-Splatoon/1.0 (twitter @yutarou1241477) (Contact yutarou12@syutarou.xyz)'}
         res = requests.get(url, headers=headers)
         if res.status_code == 200:
-            return res.json()[result_name]
+            return res.json().get(result_name)
         else:
             return res.json()
 
@@ -53,6 +53,8 @@ class Convert:
         :return: Dict
         """
         data = self.get_api_3('https://spla3.yuu26.com/api/schedule', result_name='result')
+        if data is None:
+            return None
         regular = data['regular'][1]
         bankara_challenge = data['bankara_challenge'][1]
         bankara_open = data['bankara_open'][1]
