@@ -92,7 +92,7 @@ class Log(commands.Cog):
                 embed.add_field(name='Time', value=f'<t:{today_stamp}:d> <t:{today_stamp}:T>', inline=False)
                 await log_channel.send(embed=embed)
 
-            self.bot.db.command_log_add(cmd_name)
+            await self.bot.db.command_log_add(cmd_name)
 
 
 async def setup(bot):

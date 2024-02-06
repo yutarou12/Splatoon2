@@ -3,7 +3,7 @@ import os
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
-from libs import Database
+from libs.Database import Database
 from libs import Convert
 from libs import Utils
 from cogs.Log import Log
@@ -50,7 +50,7 @@ async def on_ready():
 
 
 if __name__ == '__main__':
-    bot.db = Database.Database()
+    bot.db = Database()
     bot.convert = Convert.Convert()
     bot.utils = Utils.Utils()
     bot.config = config

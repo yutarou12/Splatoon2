@@ -11,7 +11,7 @@ class Premium(commands.Cog):
     @app_commands.command(name='auto-setting')
     async def slash_auto_setting(self, interaction: discord.Interaction):
         """自動送信機能に載る情報を変更できます。"""
-        data = self.db.premium_data_get(interaction.guild_id, interaction.channel_id)
+        data = await self.db.premium_data_get(interaction.guild_id, interaction.channel_id)
         f_view = ui.View()
         select = FirstDrop(self.db)
         data_len = 2 - len(data)
@@ -21,7 +21,7 @@ class Premium(commands.Cog):
                 if ch:
                     select.add_option(label=f'{ch.name}', value=d.get("channel_id"))
                 else:
-                    self.db.del_premium_data(d.get("channel_id"))
+                    await self.db.del_premium_data(d.get("channel_id"))
                     select.add_option(label='チャンネル未設定', value='None')
         elif data_len == 2:
             select.add_option(label='チャンネル未設定', value='None')
@@ -31,7 +31,7 @@ class Premium(commands.Cog):
                 if ch:
                     select.add_option(label=f'{ch.name}', value=d.get("channel_id"))
                 else:
-                    self.db.del_premium_data(d.get("channel_id"))
+                    await self.db.del_premium_data(d.get("channel_id"))
                     select.add_option(label='チャンネル未設定', value='None')
             for _ in range(data_len):
                 select.add_option(label='チャンネル未設定', value='None')
@@ -94,7 +94,7 @@ class SubmitView(ui.View):
 
     @ui.button(label='はい', style=discord.ButtonStyle.blurple)
     async def ok_button(self, interaction: discord.Interaction, button: ui.Button):
-        self.db.premium_data_add(interaction.guild_id, self.ch, self.data)
+        await self.db.premium_data_add(interaction.guild_id, self.ch, self.data)
         await interaction.response.edit_message(content='**以下の内容で変更しました**')
         self.value = True
         self.stop()
@@ -119,7 +119,7 @@ class FirstDrop(ui.Select):
             embed = discord.Embed(description='自動送信するチャンネルを `/auto-set` で設定してくだだい。')
             return await interaction.response.send_message(embed=embed, ephemeral=True)
         else:
-            data = self.db.get_premium_data(int(self.values[0]))
+            data = await self.db.get_premium_data(int(self.values[0]))
             view = ViewSetting(db=self.db, data=data, ch=int(self.values[0]))
             view.add_item(CheckButton(emoji='<:battle_regular:1021769457221255228>', custom_id='レギュラー'))
             view.add_item(CheckButton(emoji='<:battle_gachi:1021769458987057233>', custom_id='バンカラC'))

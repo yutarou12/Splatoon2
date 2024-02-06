@@ -9,7 +9,7 @@ from discord.ext import commands
 
 class Bot(commands.Cog):
     """主にBOTのヘルプや概要を表示するコマンドがあるカテゴリーです"""
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot):
         self.bot = bot
 
     @app_commands.command(name='ping')
@@ -52,7 +52,7 @@ class Bot(commands.Cog):
         """BOTの情報を見れるぞ!"""
         owner = await self.bot.fetch_user((await self.bot.application_info()).team.owner_id)
         info_guilds = len(self.bot.guilds)
-        auto_ch_len = len(self.bot.db.get_webhook_list())
+        auto_ch_len = len(await self.bot.db.get_webhook_list())
         embed = discord.Embed(title=f'{self.bot.user}')
         embed.set_thumbnail(url=self.bot.user.avatar.url)
         embed.add_field(name='開発者',

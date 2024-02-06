@@ -1,0 +1,44 @@
+version: "3"
+services:
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: ${POSTGRESQL_USER}
+      POSTGRES_PASSWORD: ${POSTGRESQL_PASSWORD}
+    volumes:
+      - ./postgres/init:/docker-entrypoint-initdb.d
+      - ./postgres/data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - app-net
+
+  bot:
+    restart: always
+    build:
+      context: "."
+      dockerfile: "Dockerfile"
+    environment:
+      DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
+      READY_CHANNEL_ID: ${READY_CHANNEL_ID}
+      CMD_LOG_CHANNEL_ID: ${CMD_LOG_CHANNEL_ID}
+      TRACEBACK_CHANNEL_ID: ${TRACEBACK_CHANNEL_ID}
+      ERROR_CHANNEL_ID: ${ERROR_CHANNEL_ID}
+      LOG_WEBHOOK_URL: ${LOG_WEBHOOK_URL}
+      PREFIX: ${PREFIX}
+      BOT_ID: ${BOT_ID}
+      POSTGRESQL_DATABASE_NAME: ${POSTGRESQL_DATABASE_NAME}
+      POSTGRESQL_USER: ${POSTGRESQL_USER}
+      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+      POSTGRESQL_HOST_NAME: ${POSTGRESQL_HOST_NAME}
+      POSTGRESQL_PORT: ${POSTGRESQL_PORT}
+    volumes:
+      - .:/app
+    working_dir: "/app"
+    tty: true
+    networks:
+      - app-net
+
+networks:
+  app-net:
+    driver: bridge

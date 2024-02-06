@@ -25,8 +25,8 @@ class Auto(commands.Cog):
 
     async def setup(self):
         await self.bot.wait_until_ready()
-        self.webhook_list = self.bot.db.get_webhook_list()
-        self.premium_ch_list = self.bot.db.get_premium_list()
+        self.webhook_list = await self.bot.db.get_webhook_list()
+        self.premium_ch_list = await self.bot.db.get_premium_list()
 
     async def send_msg(self, embed, channel):
         self.session = self.session or aiohttp.ClientSession()
@@ -41,7 +41,7 @@ class Auto(commands.Cog):
             log_msg = await webhook.send(embed=embed, wait=True)
             return channel, log_msg.id
         except discord.NotFound:
-            self.bot.db.del_stage_automatic(channel)
+            await self.bot.db.del_stage_automatic(channel)
             self.webhook_list.pop(channel)
             return None
         except Exception:
@@ -172,7 +172,7 @@ class Auto(commands.Cog):
 
         tasks = []
         for channel in self.webhook_list.keys():
-            data = self.bot.db.get_premium_data(channel)
+            data = await self.bot.db.get_premium_data(channel)
             embed_data = self.create_msg(ch_data=data, data=all_data)
             tasks.append(self.send_msg(embed_data, channel))
 
@@ -203,7 +203,7 @@ class Auto(commands.Cog):
         await interaction.response.defer(ephemeral=True)
 
         channel = ch if ch else interaction.channel
-        data = self.bot.db.premium_data_get(interaction.guild_id, channel.id)
+        data = await self.bot.db.premium_data_get(interaction.guild_id, channel.id)
 
         if len(data) == 2:
             return await interaction.followup.send('設定できるチャンネルの上限に達しています。', ephemeral=True)
@@ -211,16 +211,16 @@ class Auto(commands.Cog):
         if isinstance(channel, (discord.VoiceChannel, discord.CategoryChannel, discord.ForumChannel, discord.StageChannel, discord.Thread)):
             return await interaction.followup.send('テキストチャンネルで実行してください。', ephemeral=True)
 
-        if self.bot.db.get_stage_automatic(channel.id):
+        if await self.bot.db.get_stage_automatic(channel.id):
             return await interaction.followup.send(f'{channel.mention} はすでに設定されています。', ephemeral=True)
 
         webhook = await channel.create_webhook(name='スプラトゥーンステージ情報Bot', avatar=(await self.bot.user.avatar.read()))
         webhook_url = f'https://discord.com/api/webhooks/{webhook.id}/{webhook.token}'
 
-        set_data = self.bot.db.set_stage_automatic(channel.id, webhook_url)
+        set_data = await self.bot.db.set_stage_automatic(channel.id, webhook_url)
         if set_data:
             self.webhook_list[channel.id] = webhook_url
-            self.bot.db.premium_new_data(interaction.guild_id, channel.id)
+            await self.bot.db.premium_new_data(interaction.guild_id, channel.id)
             return await interaction.followup.send('自動送信の設定が出来ました。', ephemeral=True)
 
             
@@ -240,13 +240,13 @@ class Auto(commands.Cog):
         if not self.webhook_list:
             await self.setup()
         channel = ch if ch else interaction.channel
-        data = self.bot.db.get_stage_automatic(channel.id)
+        data = await self.bot.db.get_stage_automatic(channel.id)
 
         if not data:
             return await interaction.response.send_message(f'{channel.mention} には設定されていません。', ephemeral=True)
         else:
-            self.bot.db.del_stage_automatic(channel.id)
-            self.bot.db.del_premium_data(channel.id)
+            await self.bot.db.del_stage_automatic(channel.id)
+            await self.bot.db.del_premium_data(channel.id)
             self.webhook_list.pop(channel.id)
             webhooks = await interaction.channel.webhooks()
             webhook = discord.utils.get(webhooks, name='スプラトゥーンステージ情報Bot')
