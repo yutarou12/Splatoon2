@@ -56,8 +56,8 @@ class Convert:
         if data is None:
             return None
         regular = data['regular'][1]
-        bankara_challenge = data['bankara_challenge'][1]
-        bankara_open = data['bankara_open'][1]
+        bankara_challenge = data['bankara_challenge'][1] if data.get('bankara_challenge') and len(data.get('bankara_challenge')) >= 2 else None
+        bankara_open = data['bankara_open'][1] if data.get('bankara_open') and len(data.get('bankara_open')) >= 2 else None
         try:
             x = data['x'][1] if data.get('x') else None
         except IndexError:
