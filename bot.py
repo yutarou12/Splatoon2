@@ -2,11 +2,11 @@ import os
 
 import discord
 from discord.ext import commands
+
 from dotenv import load_dotenv
 from libs import Database
 from libs import Convert
 from libs import Utils
-from cogs.Log import Log
 load_dotenv()
 
 config = {
@@ -22,7 +22,8 @@ extensions_list = [f[:-3] for f in os.listdir("./cogs") if f.endswith(".py")]
 class MyBot(commands.Bot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.tree.on_error = Log.on_app_command_error
+        log_cog = self.get_cog('Log')
+        self.tree.on_error = log_cog.on_app_command_error
 
     async def setup_hook(self):
         await bot.load_extension('jishaku')
