@@ -125,8 +125,8 @@ class Database:
             else:
                 raw_data = list()
                 for d in data:
-                    raw_data.append({'channel_id': d[0], 'レギュラー': int(d[3]), 'バンカラC': int(d[4]), 'バンカラO': int(d[5]),
-                                     'x': int(d[6]), 'サーモン': int(d[7])})
+                    raw_data.append({'channel_id': d['channel_id'], 'レギュラー': int(d['regular']), 'バンカラC': int(d['bankara_c']), 'バンカラO': int(d['bankara_o']),
+                                     'x': int(d['x']), 'サーモン': int(d['salmon'])})
                 return raw_data
 
     @check_connection
@@ -150,15 +150,15 @@ class Database:
     async def get_premium_list(self):
         async with self.pool.acquire() as con:
             data = await con.fetch('SELECT channel_id FROM premium_data')
-            return [i[0] for i in data]
+            return [i['channel_id'] for i in data]
 
     @check_connection
     async def get_premium_data(self, channel_id):
         async with self.pool.acquire() as con:
             data = await con.fetch('SELECT * FROM premium_data WHERE channel_id=$1', channel_id)
             if data:
-                re_data = {'レギュラー': int(data[3]), 'バンカラC': int(data[4]), 'バンカラO': int(data[5]),
-                           'x': int(data[6]), 'サーモン': int(data[7])}
+                re_data = {'レギュラー': int(data['regular']), 'バンカラC': int(data['bankara_c']), 'バンカラO': int(data['bankara_o']),
+                           'x': int(data['x']), 'サーモン': int(data['salmon'])}
             else:
                 re_data = {'レギュラー': 1, 'バンカラC': 1, 'バンカラO': 1, 'x': 0, 'サーモン': 1}
 
