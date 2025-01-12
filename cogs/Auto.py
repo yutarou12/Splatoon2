@@ -138,7 +138,7 @@ class Auto(commands.Cog):
                             value=f'```\n{stage_5}\n```',
                             inline=False)
             if fest['is_tricolor']:
-                stage_tricolor = f'・{fest["tricolor_stage"]["name"]}'
+                stage_tricolor = f'・{fest["tricolor_stages"]["name"]}'
                 embed.add_field(name='トリカラバトル',
                                 value=f'```\n{stage_tricolor}\n```')
 
