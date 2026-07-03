@@ -1,0 +1,23 @@
+services:
+  bot:
+    container_name: "Discord-Splatoon2-Bot"
+    restart: always
+    build:
+      context: "./"
+      dockerfile: "Dockerfile"
+    environment:
+      DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
+      CMD_LOG_CHANNEL_ID: ${CMD_LOG_CHANNEL_ID}
+      READY_CHANNEL_ID: ${READY_CHANNEL_ID}
+      ERROR_CHANNEL_ID: ${ERROR_CHANNEL_ID}
+      TRACEBACK_CHANNEL_ID: ${TRACEBACK_CHANNEL_ID}
+      PREFIX: ${PREFIX}
+      BOT_ID: ${BOT_ID}
+      LOG_WEBHOOK_URL: ${LOG_WEBHOOK_URL}
+    volumes:
+      - ./:/app/
+    working_dir: "/app/"
+    tty: true
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
