@@ -55,11 +55,11 @@ class Convert:
         data = self.get_api_3('https://spla3.yuu26.com/api/schedule', result_name='result')
         if data is None:
             return None
-        regular = data['regular'][1]
+        regular = data['regular'][1] if data.get('regular') and len(data.get('regular')) >= 2 else None
         bankara_challenge = data['bankara_challenge'][1] if data.get('bankara_challenge') and len(data.get('bankara_challenge')) >= 2 else None
         bankara_open = data['bankara_open'][1] if data.get('bankara_open') and len(data.get('bankara_open')) >= 2 else None
         try:
-            x = data['x'][1] if data.get('x') else None
+            x = data['x'][1] if data.get('x') and len(data.get('x')) >= 2 else None
         except IndexError:
             x = None
         result_data = {'regular': regular, 'bankara_challenge': bankara_challenge, 'bankara_open': bankara_open, 'x': x}
