@@ -7,6 +7,8 @@ import json
 import datetime
 import random
 
+from contextlib import suppress
+
 import discord
 from discord import app_commands, Webhook
 from discord.ext import commands, tasks
@@ -24,17 +26,33 @@ class Auto(commands.Cog):
         self.utils = bot.utils
         self.scheduler_loop.start()
 
+    async def cog_unload(self):
+        # 古い Cog の定期実行タスクを停止する
+        task = self.scheduler_loop.get_task()
+        self.scheduler_loop.cancel()
+
+        try:
+            # 停止が完了するまで待ってから通信セッションを閉じる
+            if task is not None:
+                with suppress(asyncio.CancelledError):
+                    await task
+        finally:
+            if self.session is not None and not self.session.closed:
+                await self.session.close()
+
     async def setup(self):
         await self.bot.wait_until_ready()
         self.webhook_list = self.bot.db.get_webhook_list()
         self.premium_ch_list = self.bot.db.get_premium_list()
 
     async def send_msg(self, embed, channel):
-        self.session = self.session or aiohttp.ClientSession()
         url = self.webhook_list.get(channel)
 
         if url is None:
             return None
+
+        if self.session is None or self.session.closed:
+            self.session = aiohttp.ClientSession()
 
         webhook = Webhook.from_url(url, session=self.session)
 
