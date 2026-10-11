@@ -1,6 +1,5 @@
 import asyncio
 import io
-import os
 import pytz
 
 import aiohttp
@@ -11,6 +10,8 @@ import random
 import discord
 from discord import app_commands, Webhook
 from discord.ext import commands, tasks
+
+from libs.Env import LOG_WEBHOOK_URL
 
 
 class Auto(commands.Cog):
@@ -188,7 +189,7 @@ class Auto(commands.Cog):
 
         msg_log = json.dumps(log_dict, ensure_ascii=False, indent=4)
         log_file = discord.File(fp=io.StringIO(msg_log), filename="auto_sending_log.txt")
-        log_webhook_url = os.getenv('LOG_WEBHOOK_URL')
+        log_webhook_url = LOG_WEBHOOK_URL
         log_webhook = Webhook.from_url(
             log_webhook_url,
             session=self.session

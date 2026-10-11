@@ -1,6 +1,5 @@
 import math
 import traceback
-import os
 
 from datetime import datetime
 
@@ -11,6 +10,7 @@ from discord.ext import commands
 
 from libs.Error import NotOwner
 from libs.Utils import icon_convert
+from libs.Env import TRACEBACK_CHANNEL_ID, ERROR_CHANNEL_ID, READY_CHANNEL_ID, CMD_LOG_CHANNEL_ID
 
 
 class Log(commands.Cog):
@@ -19,8 +19,8 @@ class Log(commands.Cog):
         self.bot = bot
 
     async def on_app_command_error(self, interaction: Interaction, error: AppCommandError):
-        TRACEBACK_CHANNEL = await self.bot.fetch_channel(int(os.getenv('TRACEBACK_CHANNEL_ID')))
-        ERROR_CHANNEL = await self.bot.fetch_channel(int(os.getenv('ERROR_CHANNEL_ID')))
+        TRACEBACK_CHANNEL = await self.bot.fetch_channel(TRACEBACK_CHANNEL_ID)
+        ERROR_CHANNEL = await self.bot.fetch_channel(ERROR_CHANNEL_ID)
 
         if isinstance(error, CommandInvokeError):
             error = error.original
@@ -66,11 +66,11 @@ class Log(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        log_channel = await self.bot.fetch_channel(int(os.getenv('READY_CHANNEL_ID')))
+        log_channel = await self.bot.fetch_channel(READY_CHANNEL_ID)
         print(f'{self.bot.user.name} でログインしました')
         print(f'サーバー数: {len(self.bot.guilds)}')
         if log_channel:
-            today_stamp = math.floor(datetime.utcnow().timestamp())
+            today_stamp = math.floor(datetime.now().timestamp())
             embed = Embed(title='on_ready')
             embed.add_field(name='NowTime', value=f'<t:{today_stamp}:d><t:{today_stamp}:T>', inline=False)
             embed.add_field(name='Servers', value=f'{len(self.bot.guilds)}', inline=False)
@@ -82,10 +82,10 @@ class Log(commands.Cog):
     @commands.Cog.listener()
     async def on_interaction(self, interaction: discord.Interaction):
         if interaction.command:
-            log_channel = await self.bot.fetch_channel(int(os.getenv('CMD_LOG_CHANNEL_ID')))
+            log_channel = await self.bot.fetch_channel(CMD_LOG_CHANNEL_ID)
             cmd_name = interaction.command.qualified_name
             if log_channel:
-                today_stamp = math.floor(datetime.utcnow().timestamp())
+                today_stamp = math.floor(datetime.now().timestamp())
                 embed = discord.Embed(title='Command Log')
                 embed.add_field(name='Command Name', value=f'`{cmd_name}`', inline=False)
                 embed.add_field(name='User', value=f'`{interaction.user}({interaction.user.id})`', inline=False)

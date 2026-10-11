@@ -1,10 +1,11 @@
 import math
 import sys
-import os
 
 import discord
 from discord import app_commands, ui
 from discord.ext import commands
+
+from libs.Env import OAUTH_URL
 
 
 class Bot(commands.Cog):
@@ -20,7 +21,7 @@ class Bot(commands.Cog):
     @app_commands.command(name='invite')
     async def invite(self, ctx):
         """BOTの招待リンクを出すぞ!"""
-        return await ctx.response.send_message(f'これが招待リンクだ。\n{self.bot.config["oauth_url"]}', ephemeral=True)
+        return await ctx.response.send_message(f'これが招待リンクだ。\n{OAUTH_URL}', ephemeral=True)
 
     @app_commands.command(name='help')
     async def _help(self, ctx):
@@ -71,7 +72,7 @@ class Bot(commands.Cog):
 
         view = ui.View()
         view.add_item(discord.ui.Button(
-            label='BOTの招待リンク', style=discord.ButtonStyle.url, url=f'{self.bot.config["oauth_url"]}', row=1))
+            label='BOTの招待リンク', style=discord.ButtonStyle.url, url=OAUTH_URL, row=1))
         view.add_item(discord.ui.Button(
             label='サポートサーバー', style=discord.ButtonStyle.url, url='https://discord.gg/k5Feum44gE', row=1))
         view.add_item(discord.ui.Button(
