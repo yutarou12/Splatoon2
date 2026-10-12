@@ -6,7 +6,7 @@ load_dotenv()
 
 PREFIX: str = os.getenv('PREFIX', '!')
 BOT_ID: int = int(os.getenv('BOT_ID', "0"))
-BOT_TOKEN: str = os.getenv('BOT_TOKEN', "")
+BOT_TOKEN: str = os.getenv('DISCORD_BOT_TOKEN', "")
 OAUTH_URL: str = discord.utils.oauth_url(BOT_ID,
                                     permissions=discord.Permissions(536870912),
                                     scopes=['bot', 'applications.commands'])
